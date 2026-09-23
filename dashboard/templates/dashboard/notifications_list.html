@@ -1,0 +1,56 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">All Notifications</span>
+    {% if unread_notifications_count %}
+    <form method="post" action="{% url 'dashboard:notifications_mark_all_read' %}" class="card-link" style="margin-left:auto;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm">Mark all as read</button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% if page_obj %}
+  {% for n in page_obj %}
+  <div style="display:flex;gap:.8rem;align-items:center;padding:.85rem 0;{% if not forloop.last %}border-bottom:1px solid var(--border);{% endif %}">
+    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:var(--brand-light);color:var(--brand);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+    </div>
+    <div style="flex:1;">
+      {% if n.url %}
+      <a href="{{ n.url }}" style="text-decoration:none;color:inherit;">
+        <div style="font-size:.88rem;{% if not n.is_read %}font-weight:600;{% endif %}">{{ n.title }}</div>
+        <div style="font-size:.8rem;color:var(--muted);">{{ n.message }}</div>
+        <div style="font-size:.72rem;color:var(--muted-2);margin-top:.15rem;">{{ n.created_at|timesince }} ago &middot; View details &rarr;</div>
+      </a>
+      {% else %}
+      <div style="font-size:.88rem;{% if not n.is_read %}font-weight:600;{% endif %}">{{ n.title }}</div>
+      <div style="font-size:.8rem;color:var(--muted);">{{ n.message }}</div>
+      <div style="font-size:.72rem;color:var(--muted-2);margin-top:.15rem;">{{ n.created_at|timesince }} ago</div>
+      {% endif %}
+    </div>
+    {% if not n.is_read %}
+    <form method="post" action="{% url 'dashboard:notification_mark_read' n.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button type="submit" class="btn btn-sm">Mark read</button>
+    </form>
+    {% else %}
+    <span class="badge read">Read</span>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">&larr;</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No notifications yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

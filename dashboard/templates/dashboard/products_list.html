@@ -1,0 +1,46 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><span class="card-title">All Products</span>
+    <a href="{% url 'dashboard:product_add' %}" class="card-link">+ Add Product</a></div>
+
+  <form method="get" style="display:flex;gap:.6rem;margin-bottom:1.1rem;flex-wrap:wrap;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search products..." class="form-input" style="max-width:18rem;">
+    <select name="category" class="form-input" style="max-width:14rem;" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for cat in categories %}
+      <option value="{{ cat.pk }}" {% if active_category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+
+  {% if products %}
+  <table>
+    <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Promo</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><strong>{{ p.title }}</strong>{% if p.is_featured %} <span class="badge confirmed">Featured</span>{% endif %}</td>
+        <td>{{ p.category.name|default:"—" }}</td>
+        <td>NGN {{ p.price|floatformat:0 }}</td>
+        <td>
+          {% if not p.track_stock %}<span style="color:var(--muted);">Not tracked</span>
+          {% elif p.stock_quantity <= 0 %}<span class="badge cancelled">Out of stock</span>
+          {% elif p.stock_quantity <= 5 %}<span class="badge pending">Low: {{ p.stock_quantity }}</span>
+          {% else %}{{ p.stock_quantity }}{% endif %}
+        </td>
+        <td>{% if p.active_promotion %}<span class="badge confirmed">-{{ p.discount_percent }}%</span>{% else %}—{% endif %}</td>
+        <td>{% if p.active %}<span class="badge active">Available</span>{% else %}<span class="badge cancelled">Unavailable</span>{% endif %}</td>
+        <td><a href="{% url 'dashboard:product_edit' p.pk %}" class="btn btn-sm">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No products found.</div>
+  {% endif %}
+</div>
+{% endblock %}

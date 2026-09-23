@@ -1,0 +1,310 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Dashboard Overview{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block content %}
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="cal-header">
+    <div class="cal-title-block">
+      <span class="card-title">{{ cal_month_name }} {{ cal_year }}</span>
+      <span style="font-size:.78rem;color:var(--muted);">Appointment Calendar</span>
+    </div>
+    <div class="cal-nav">
+      <a href="?cal_year={{ cal_prev_year }}&cal_month={{ cal_prev_month }}" class="btn btn-sm" aria-label="Previous month">&larr;</a>
+      <a href="?" class="btn btn-sm">Today</a>
+      <a href="?cal_year={{ cal_next_year }}&cal_month={{ cal_next_month }}" class="btn btn-sm" aria-label="Next month">&rarr;</a>
+    </div>
+  </div>
+
+  <div class="cal-legend">
+    <span class="cal-dot"></span> Upcoming appointment (pending or confirmed)
+  </div>
+
+  <div class="cal-grid cal-grid-head">
+    {% for d in cal_day_names %}<div class="cal-daylabel">{{ d }}</div>{% endfor %}
+  </div>
+
+  {% for week in cal_weeks %}
+  <div class="cal-grid">
+    {% for day in week %}
+    <div class="cal-cell {% if not day.in_month %}cal-cell-muted{% endif %} {% if day.is_today %}cal-cell-today{% endif %} {% if day.count %}cal-cell-has-appts{% endif %}"
+         {% if day.count %}onclick="openCalDay('{{ day.iso }}')" role="button" tabindex="0"{% endif %}>
+      <span class="cal-daynum">{{ day.day }}</span>
+      {% if day.count %}
+      <span class="cal-badge">{{ day.count }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+
+{{ cal_data_json|json_script:"cal-data" }}
+
+<div id="calModalOverlay" class="cal-modal-overlay" onclick="closeCalDay(event)">
+  <div class="cal-modal" onclick="event.stopPropagation()">
+    <div class="cal-modal-header">
+      <span id="calModalTitle" class="card-title"></span>
+      <button onclick="closeCalDay()" class="icon-btn" style="width:1.8rem;height:1.8rem;">✕</button>
+    </div>
+    <div id="calModalBody"></div>
+  </div>
+</div>
+
+<script>
+  const CAL_DATA = JSON.parse(document.getElementById('cal-data').textContent);
+  const CAL_STATUS_CLASS = {pending: 'pending', confirmed: 'confirmed'};
+
+  function openCalDay(iso) {
+    const appts = CAL_DATA[iso] || [];
+    const d = new Date(iso + 'T00:00:00');
+    const title = d.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
+    document.getElementById('calModalTitle').textContent = title;
+
+    const body = document.getElementById('calModalBody');
+    body.innerHTML = '';  // clear previous content; nothing below this line uses innerHTML with data
+
+    const summary = document.createElement('p');
+    summary.style.cssText = 'font-size:.82rem;color:var(--muted);margin:0 0 1rem;';
+    summary.textContent = `${appts.length} appointment${appts.length === 1 ? '' : 's'}`;
+    body.appendChild(summary);
+
+    appts.forEach(a => {
+      const row = document.createElement('div');
+      row.className = 'cal-appt-row';
+
+      const time = document.createElement('div');
+      time.className = 'cal-appt-time';
+      time.textContent = a.time;  // textContent -- never innerHTML -- for every database-controlled value below
+      row.appendChild(time);
+
+      const info = document.createElement('div');
+      info.className = 'cal-appt-info';
+      const nameEl = document.createElement('div');
+      nameEl.style.cssText = 'font-weight:600;font-size:.88rem;';
+      nameEl.textContent = a.name;
+      const subEl = document.createElement('div');
+      subEl.style.cssText = 'font-size:.78rem;color:var(--muted);';
+      subEl.textContent = a.service;
+      info.appendChild(nameEl);
+      info.appendChild(subEl);
+      row.appendChild(info);
+
+      const badge = document.createElement('span');
+      badge.className = `badge ${CAL_STATUS_CLASS[a.status] || ''}`;
+      badge.textContent = a.status_display;
+      row.appendChild(badge);
+
+      const link = document.createElement('a');
+      link.className = 'btn btn-sm';
+      // a.detail_url is generated server-side via Django's reverse() --
+      // never built from user/database-controlled strings.
+      link.href = a.detail_url;
+      link.textContent = 'View Appointment';
+      row.appendChild(link);
+
+      body.appendChild(row);
+    });
+
+    document.getElementById('calModalOverlay').classList.add('open');
+  }
+
+  function closeCalDay(e) {
+    document.getElementById('calModalOverlay').classList.remove('open');
+  }
+</script>
+
+<style>
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.6rem;}
+  .cal-title-block{display:flex;flex-direction:column;}
+  .cal-nav{display:flex;gap:.4rem;}
+  .cal-legend{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted);margin-bottom:.85rem;}
+  .cal-dot{width:.6rem;height:.6rem;border-radius:50%;background:var(--warn);display:inline-block;}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-bottom:.4rem;}
+  .cal-grid-head{margin-bottom:.5rem;}
+  .cal-daylabel{text-align:center;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;padding-bottom:.3rem;}
+
+  .cal-cell{position:relative;aspect-ratio:1/0.72;min-height:3rem;border-radius:.6rem;border:1px solid var(--border);
+    padding:.4rem;display:flex;flex-direction:column;background:#fff;}
+  .cal-cell-muted{background:var(--bg);color:var(--muted-2);}
+  .cal-cell-muted .cal-daynum{color:var(--muted-2);}
+  .cal-cell-today{border-color:var(--brand);border-width:2px;}
+  .cal-cell-today .cal-daynum{color:var(--brand);font-weight:800;}
+  .cal-cell-has-appts{cursor:pointer;background:var(--warn-bg);border-color:#f0d9a8;}
+  .cal-cell-has-appts:hover{filter:brightness(0.97);}
+  .cal-cell-has-appts.cal-cell-today{background:var(--warn-bg);border-color:var(--brand);}
+  .cal-daynum{font-size:.85rem;font-weight:600;}
+  .cal-badge{position:absolute;bottom:.35rem;right:.4rem;background:var(--warn);color:#fff;font-size:.68rem;
+    font-weight:700;min-width:1.15rem;height:1.15rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;padding:0 .3rem;}
+
+  .cal-modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,41,29,.45);z-index:200;
+    align-items:center;justify-content:center;padding:1rem;}
+  .cal-modal-overlay.open{display:flex;}
+  .cal-modal{background:#fff;border-radius:1rem;padding:1.5rem;max-width:32rem;width:100%;max-height:80vh;overflow-y:auto;}
+  .cal-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .cal-appt-row{display:flex;align-items:center;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .cal-appt-row:last-child{border-bottom:none;}
+  .cal-appt-time{font-weight:700;font-size:.82rem;color:var(--brand);min-width:4.2rem;}
+  .cal-appt-info{flex:1;min-width:8rem;}
+
+  @media (max-width: 900px){
+    .cal-cell{min-height:2.4rem;padding:.25rem;}
+    .cal-daynum{font-size:.72rem;}
+    .cal-badge{width:.95rem;height:.95rem;font-size:.6rem;bottom:.2rem;right:.2rem;}
+    .cal-daylabel{font-size:.62rem;}
+    .cal-grid{gap:.25rem;}
+  }
+</style>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--brand-light);color:var(--brand);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    </div>
+    <div class="stat-label">Total Appointments</div>
+    <div class="stat-value">{{ stats.total_appointments }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--warn-bg);color:var(--warn);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="stat-label">Pending Appointments</div>
+    <div class="stat-value">{{ stats.pending_appointments }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--blue-bg);color:var(--blue);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/></svg>
+    </div>
+    <div class="stat-label">Today's Appointments</div>
+    <div class="stat-value">{{ stats.today_appointments }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--brand-light);color:var(--brand);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="stat-label">Completed (This Month)</div>
+    <div class="stat-value">{{ stats.completed_this_month }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--purple-bg);color:var(--purple);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="stat-label">Unread Messages</div>
+    <div class="stat-value">{{ stats.unread_messages }}</div>
+    <a href="{% url 'dashboard:messages' %}" class="card-link" style="font-size:.75rem;">View messages &rarr;</a>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--danger-bg);color:var(--danger);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    </div>
+    <div class="stat-label">New Orders</div>
+    <div class="stat-value">{{ stats.new_orders }}</div>
+    <a href="{% url 'dashboard:orders' %}" class="card-link" style="font-size:.75rem;">View orders &rarr;</a>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FDF0DC;color:#B0683A;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24L3 3v6.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.83 0l4.59-4.59a2 2 0 000-2.83z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+    </div>
+    <div class="stat-label">Active Promotions</div>
+    <div class="stat-value">{{ stats.active_promotions }}</div>
+    <a href="{% url 'dashboard:promotions' %}" class="card-link" style="font-size:.75rem;">View promotions &rarr;</a>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--warn-bg);color:var(--warn);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+    </div>
+    <div class="stat-label">Low Stock Products</div>
+    <div class="stat-value">{{ stats.low_stock_products }}</div>
+    <a href="{% url 'dashboard:products' %}" class="card-link" style="font-size:.75rem;">View products &rarr;</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:1.25rem;align-items:start;">
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Recent Appointments</span>
+      <a href="{% url 'dashboard:appointments' %}" class="card-link">View all &rarr;</a></div>
+    {% if recent_appointments %}
+    <table>
+      <thead><tr><th>Patient</th><th>Service</th><th>Date &amp; Time</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for a in recent_appointments %}
+        <tr onclick="window.location='{% url 'dashboard:appointment_detail' a.pk %}'" style="cursor:pointer;">
+          <td><strong>{{ a.contact_name }}</strong><br><span style="color:var(--muted);font-size:.78rem;">{{ a.contact_phone }}</span></td>
+          <td>{{ a.service_name|default:"General" }}</td>
+          <td>{{ a.appointment_date|default:"TBC" }}{% if a.preferred_time %}<br><span style="color:var(--muted);font-size:.78rem;">{{ a.preferred_time }}</span>{% endif %}</td>
+          <td><span class="badge {{ a.status }}">{{ a.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No appointments yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Top Services</span></div>
+    {% if top_services %}
+      {% for s in top_services %}
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;">
+        <span style="width:1.3rem;color:var(--muted);font-size:.8rem;">{{ forloop.counter }}</span>
+        <span style="flex:1;font-size:.85rem;">{{ s.service_name }}</span>
+        <span style="font-weight:700;font-size:.85rem;">{{ s.bookings }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">No booking data yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Recent Notifications</span>
+      <a href="{% url 'dashboard:notifications' %}" class="card-link">View all &rarr;</a></div>
+    {% if recent_notifications %}
+      {% for n in recent_notifications %}
+      <div style="display:flex;gap:.7rem;padding:.55rem 0;{% if not forloop.last %}border-bottom:1px solid var(--border);{% endif %}">
+        <div style="width:2rem;height:2rem;border-radius:.5rem;background:var(--brand-light);color:var(--brand);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:.83rem;{% if not n.is_read %}font-weight:600;{% endif %}">{{ n.title }}</div>
+          <div style="font-size:.75rem;color:var(--muted);">{{ n.created_at|timesince }} ago</div>
+        </div>
+        {% if not n.is_read %}<span style="width:.5rem;height:.5rem;border-radius:50%;background:var(--danger);margin-top:.3rem;"></span>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">No notifications yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Unread Messages</span>
+      <a href="{% url 'dashboard:messages' %}" class="card-link">View all &rarr;</a></div>
+    {% if recent_messages %}
+      {% for m in recent_messages %}
+      <a href="{% url 'dashboard:message_detail' m.pk %}" style="display:flex;gap:.7rem;padding:.55rem 0;{% if not forloop.last %}border-bottom:1px solid var(--border);{% endif %}">
+        <div class="avatar" style="width:2rem;height:2rem;font-size:.7rem;">{{ m.name|slice:":1"|upper }}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.83rem;font-weight:{% if not m.is_read %}600{% else %}400{% endif %};">{{ m.name }}</div>
+          <div style="font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.message }}</div>
+        </div>
+        {% if not m.is_read %}<span style="width:.5rem;height:.5rem;border-radius:50%;background:var(--danger);margin-top:.3rem;flex-shrink:0;"></span>{% endif %}
+      </a>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">No messages yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

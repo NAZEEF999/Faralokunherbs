@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<section style="padding-top:6rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <a href="{% url 'accounts:dashboard' %}" style="color:#A0B5A3;font-size:.8125rem;text-decoration:none;">&larr; Dashboard</a>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;margin-top:.5rem;">My Appointments</h1>
+      </div>
+      <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem;padding:.625rem 1.125rem;">New Booking</a>
+    </div>
+
+    <!-- Status filter tabs -->
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      {% for val, label, color in status_tabs %}
+      <a href="?status={{ val }}" style="padding:.375rem .875rem;border-radius:.5rem;font-size:.8125rem;text-decoration:none;transition:all .2s;{% if active_status == val %}background:rgba(58,125,68,.2);color:#3A7D44;border:1px solid rgba(58,125,68,.3);{% else %}color:#A0B5A3;border:1px solid rgba(58,125,68,.15);{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+
+    {% if appointments %}
+    <div class="space-y-3">
+      {% for appt in appointments %}
+      <div class="glass-card" style="padding:1.25rem;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+          <div style="flex:1;">
+            <p style="color:#E8F0E9;font-size:1rem;font-weight:500;margin-bottom:.35rem;">{{ appt.service_name|default:"General Consultation" }}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:.875rem;font-size:.8125rem;color:rgba(160,181,163,.7);">
+              {% if appt.appointment_date %}
+              <span style="display:flex;align-items:center;gap:.35rem;">
+                <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                {{ appt.appointment_date }}
+              </span>
+              {% endif %}
+              {% if appt.preferred_time %}
+              <span style="display:flex;align-items:center;gap:.35rem;">
+                <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ appt.preferred_time }}
+              </span>
+              {% endif %}
+              <span>Booked {{ appt.created_at|date:"N j, Y" }}</span>
+            </div>
+            {% if appt.notes %}<p style="color:rgba(160,181,163,.6);font-size:.8rem;margin-top:.4rem;">{{ appt.notes|truncatechars:80 }}</p>{% endif %}
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0;">
+            {% if appt.status == 'confirmed' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(58,125,68,.15);color:#4CAF50;border:1px solid rgba(58,125,68,.3);">Confirmed</span>
+            {% elif appt.status == 'pending' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(196,154,60,.1);color:#C49A3C;border:1px solid rgba(196,154,60,.3);">Pending</span>
+            {% elif appt.status == 'completed' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(160,181,163,.1);color:#A0B5A3;border:1px solid rgba(160,181,163,.2);">Completed</span>
+            {% elif appt.status == 'cancelled' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(160,69,58,.1);color:#f87171;border:1px solid rgba(160,69,58,.2);">Cancelled</span>
+            {% endif %}
+            <a href="{% url 'accounts:receipt_pdf' appt.pk %}" class="btn-ghost" style="padding:.375rem .75rem;font-size:.75rem;" title="Download PDF Receipt">
+              <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              PDF
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card" style="padding:3rem;text-align:center;">
+      <svg style="width:3.5rem;height:3.5rem;color:rgba(58,125,68,.2);margin:0 auto 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <p style="color:#A0B5A3;margin-bottom:1.25rem;">No appointments found.</p>
+      <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem;">Book Your First Session</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

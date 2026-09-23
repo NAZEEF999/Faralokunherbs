@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{% url 'health:conditions_list' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Health Conditions</a>
+
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:1.5rem;">{{ condition.name }}</h1>
+
+    {% if condition.image %}
+    <img src="{{ condition.image.url }}" alt="{{ condition.name }}" style="width:100%;max-height:20rem;object-fit:cover;border-radius:1.5rem;background:#faf1de;margin-bottom:2rem;"/>
+    {% endif %}
+
+    <p class="muted-text" style="font-size:1rem;line-height:1.75;margin-bottom:2rem;">{{ condition.overview }}</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8" style="margin-bottom:1rem;">
+      {% if condition.cause_list %}
+      <div>
+        <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Causes &amp; Risk Factors</h3>
+        <ul style="list-style:none;padding:0;margin:0;">
+          {% for item in condition.cause_list %}<li style="display:flex;gap:.5rem;font-size:.88rem;color:#3E4B41;margin-bottom:.4rem;"><span style="color:#B0683A;">&#8226;</span>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if condition.symptom_list %}
+      <div>
+        <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Symptoms</h3>
+        <ul style="list-style:none;padding:0;margin:0;">
+          {% for item in condition.symptom_list %}<li style="display:flex;gap:.5rem;font-size:.88rem;color:#3E4B41;margin-bottom:.4rem;"><span style="color:#B0683A;">&#8226;</span>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if condition.prevention_list %}
+      <div>
+        <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Prevention</h3>
+        <ul style="list-style:none;padding:0;margin:0;">
+          {% for item in condition.prevention_list %}<li style="display:flex;gap:.5rem;font-size:.88rem;color:#3E4B41;margin-bottom:.4rem;"><span style="color:#3A7D44;">&#10003;</span>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if condition.lifestyle_list %}
+      <div>
+        <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Lifestyle Tips</h3>
+        <ul style="list-style:none;padding:0;margin:0;">
+          {% for item in condition.lifestyle_list %}<li style="display:flex;gap:.5rem;font-size:.88rem;color:#3E4B41;margin-bottom:.4rem;"><span style="color:#3A7D44;">&#10003;</span>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if condition.treatment_info %}
+    <div style="margin-bottom:1.5rem;">
+      <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">General Treatment Information</h3>
+      <p class="muted-text" style="font-size:.88rem;line-height:1.75;white-space:pre-line;">{{ condition.treatment_info }}</p>
+    </div>
+    {% endif %}
+
+    {% if condition.seek_care_info %}
+    <div class="glass-card" style="padding:1.25rem;border-color:rgba(176,104,58,.3);background:#FFF8ED;margin-bottom:1.5rem;">
+      <h3 style="font-weight:700;color:#8a6420;font-size:.92rem;margin-bottom:.5rem;">When to Seek Professional Care</h3>
+      <p style="font-size:.85rem;line-height:1.7;color:#5b6b5e;white-space:pre-line;">{{ condition.seek_care_info }}</p>
+    </div>
+    {% endif %}
+
+    {% if condition.related_herbs.all %}
+    <div style="margin-top:3rem;">
+      <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">Related Herbs</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        {% for herb in condition.related_herbs.all %}
+        <a href="{% url 'health:herb_detail' herb.slug %}" class="glass-card reveal" style="overflow:hidden;text-decoration:none;display:block;">
+          <img src="{% if herb.image %}{{ herb.image.url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" alt="{{ herb.common_name }}" style="width:100%;height:7rem;object-fit:cover;background:#faf1de;" loading="lazy"/>
+          <div style="padding:.9rem;"><h4 style="font-weight:700;color:#14291D;font-size:.88rem;">{{ herb.common_name }}</h4></div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <p style="font-size:.72rem;color:#8fa298;margin-top:2.5rem;line-height:1.6;">This page is educational information only and is not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional about your specific situation.</p>
+  </div>
+</section>
+{% endblock %}

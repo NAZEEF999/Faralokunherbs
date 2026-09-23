@@ -1,0 +1,15 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Recovery Codes{% endblock %}
+{% block page_title %}Your Recovery Codes{% endblock %}
+{% block content %}
+<div class="card" style="max-width:28rem;">
+  <p style="font-size:.85rem;background:var(--warn-bg);color:var(--warn);padding:.75rem 1rem;border-radius:.6rem;margin-bottom:1.25rem;">
+    &#9888; Save these codes now — they won't be shown again. Each one works once, if you ever lose
+    access to your authenticator app.
+  </p>
+  <div style="font-family:monospace;font-size:.95rem;background:var(--surface-2,#f6f8f7);border-radius:.6rem;padding:1rem 1.25rem;margin-bottom:1.5rem;line-height:2;">
+    {% for code in codes %}{{ code }}<br>{% endfor %}
+  </div>
+  <a href="{% url 'dashboard:account_security' %}" class="btn btn-primary" style="width:100%;justify-content:center;">I've saved these — Continue</a>
+</div>
+{% endblock %}

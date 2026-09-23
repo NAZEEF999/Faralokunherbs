@@ -1,0 +1,30 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages / Inquiries{% endblock %}
+{% block content %}
+<div class="card">
+  {% if page_obj %}
+  <table>
+    <thead><tr><th>From</th><th>Message</th><th>Received</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for m in page_obj %}
+      <tr>
+        <td><strong>{{ m.name }}</strong><br><span style="color:var(--muted);font-size:.78rem;">{{ m.email|default:m.phone }}</span></td>
+        <td style="max-width:24rem;">{{ m.message|truncatechars:80 }}</td>
+        <td>{{ m.created_at|timesince }} ago</td>
+        <td><span class="badge {% if m.is_read %}read{% else %}unread{% endif %}">{% if m.is_read %}Read{% else %}Unread{% endif %}</span></td>
+        <td><a href="{% url 'dashboard:message_detail' m.pk %}" class="btn btn-sm">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">&larr;</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No messages yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

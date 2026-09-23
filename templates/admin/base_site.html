@@ -1,0 +1,28 @@
+{% extends 'admin/base.html' %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        // Fix missing Unfold search Alpine functions
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('searchFix', {
+                open: false,
+                toggle() {
+                    this.open = !this.open;
+                }
+            });
+        });
+
+        // Global fallbacks for Alpine directives that can't find their component data
+        window.searchDropdown = function () {
+            const results = document.getElementById('search-results');
+            if (results) {
+                results.classList.toggle('hidden');
+                const store = Alpine.store('searchFix');
+                if (store) store.toggle();
+            }
+        };
+
+        window.openSearchResults = false;
+    </script>
+{% endblock %}

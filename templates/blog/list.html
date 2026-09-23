@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<section style="position:relative;background:#14291D;padding-top:9rem;padding-bottom:4rem;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:url('{% static "img/blog-hero.jpg" %}');background-size:cover;background-position:center;opacity:.18;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,41,29,.3),#14291D 90%);"></div>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style="position:relative;">
+    <span style="color:#9fb3a4;font-size:.85rem;">Home / Blog</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.25rem,5vw,3.5rem);color:#FFFFFF;font-weight:700;margin-top:.75rem;">Healing Blog</h1>
+    <p style="color:#9fb3a4;max-width:36rem;margin:1rem auto 0;">Wellness tips, healing guides and traditional health insights.</p>
+  </div>
+</section>
+
+{% if categories %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="margin-top:2.5rem;margin-bottom:1rem;">
+  <div class="flex flex-wrap gap-2 justify-center">
+    <a href="{% url 'api:blog' %}" style="padding:.5rem 1.1rem;border-radius:9999px;font-size:.82rem;text-decoration:none;font-weight:500;{% if not active_category %}background:#3A7D44;color:#fff;{% else %}background:#fff;color:#3E4B41;border:1px solid #E6ECE8;{% endif %}">All</a>
+    {% for cat in categories %}{% if cat %}
+    <a href="?category={{ cat }}" style="padding:.5rem 1.1rem;border-radius:9999px;font-size:.82rem;text-decoration:none;font-weight:500;{% if active_category == cat %}background:#3A7D44;color:#fff;{% else %}background:#fff;color:#3E4B41;border:1px solid #E6ECE8;{% endif %}">{{ cat }}</a>
+    {% endif %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<section class="section-padding">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {% if page_obj.object_list %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for post in page_obj %}
+      <a href="{% url 'api:blog_detail' post.slug %}" class="glass-card reveal" style="display:flex;flex-direction:column;text-decoration:none;overflow:hidden;">
+        <img src="{% if post.image %}{{ post.image.url }}{% else %}{% static 'img/blog-placeholder.jpg' %}{% endif %}" loading="lazy"
+             alt="{{ post.title }}" style="width:100%;height:13rem;object-fit:cover;background:#e9f4ea;"/>
+        <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column;">
+          {% if post.category %}<span class="badge-gold" style="margin-bottom:.75rem;align-self:flex-start;">{{ post.category }}</span>{% endif %}
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:#14291D;font-weight:700;margin-bottom:.75rem;flex:1;">{{ post.title }}</h2>
+          <p class="muted-text" style="font-size:.8125rem;line-height:1.6;margin-bottom:1rem;">{{ post.excerpt|truncatechars:150 }}</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:.75rem;border-top:1px solid #E6ECE8;">
+            <span class="muted-text" style="font-size:.75rem;">{{ post.author }} &middot; {{ post.reading_time }} min read</span>
+            <span style="color:#3A7D44;font-size:.8125rem;font-weight:600;">Read More &rarr;</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div style="display:flex;justify-content:center;gap:.5rem;margin-top:3rem;">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}" class="btn-ghost" style="padding:.5rem 1rem;font-size:.875rem;">&larr; Previous</a>
+      {% endif %}
+      <span class="glass-card" style="padding:.5rem 1rem;font-size:.875rem;color:#3E4B41;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}" class="btn-ghost" style="padding:.5rem 1rem;font-size:.875rem;">Next &rarr;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div style="text-align:center;padding:5rem 0;">
+      <p class="muted-text">No posts yet. Check back soon.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

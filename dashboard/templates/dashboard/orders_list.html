@@ -1,0 +1,53 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block content %}
+<div class="card">
+  <form method="get" style="display:flex;gap:.6rem;margin-bottom:1.1rem;flex-wrap:wrap;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search order #, name, phone..." class="form-input" style="max-width:18rem;">
+    <select name="status" class="form-input" style="max-width:12rem;" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if active_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+
+  {% if page_obj %}
+  <table>
+    <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th><th></th></tr></thead>
+    <tbody>
+      {% for o in page_obj %}
+      <tr>
+        <td><strong>{{ o.order_number }}</strong><br><span style="color:var(--muted);font-size:.75rem;">{{ o.created_at|date:"M d, Y" }}</span></td>
+        <td><strong>{{ o.customer_name }}</strong><br><span style="color:var(--muted);font-size:.78rem;">{{ o.customer_phone }}</span></td>
+        <td>{{ o.item_count }} item{{ o.item_count|pluralize }}</td>
+        <td>NGN {{ o.total|floatformat:0 }}</td>
+        <td><span class="badge {{ o.status }}">{{ o.get_status_display }}</span></td>
+        <td>
+          <form method="post" action="{% url 'dashboard:order_update_status' o.pk %}" style="display:flex;gap:.4rem;">
+            {% csrf_token %}
+            <select name="status" class="form-input" style="padding:.3rem .5rem;font-size:.78rem;">
+              {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if o.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm">Save</button>
+          </form>
+        </td>
+        <td><a href="{% url 'dashboard:order_detail' o.pk %}" class="btn btn-sm">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ active_status }}&q={{ q }}">&larr;</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ active_status }}&q={{ q }}">&rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No orders yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

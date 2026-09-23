@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:3rem;text-align:center;background:#14291D;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <span style="color:#9fb3a4;font-size:.85rem;"><a href="{% url 'health:index' %}" style="color:#9fb3a4;">Health Library</a> / Herbs &amp; Ingredients</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4.5vw,3rem);color:#FFFFFF;font-weight:700;margin-top:.75rem;">Herbs &amp; Ingredients</h1>
+    <p style="color:#9fb3a4;max-width:36rem;margin:1rem auto 0;">Traditional herbs and natural ingredients — their uses, preparation, and safety information.</p>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <form method="get" style="max-width:24rem;margin:0 auto 2.5rem;">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search herbs..." class="form-input" style="width:100%;padding:.75rem 1rem;border-radius:.6rem;border:1px solid #E6ECE8;">
+    </form>
+
+    {% if herbs %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for herb in herbs %}
+      <a href="{% url 'health:herb_detail' herb.slug %}" class="glass-card reveal" style="overflow:hidden;text-decoration:none;display:block;">
+        <img src="{% if herb.image %}{{ herb.image.url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" alt="{{ herb.common_name }}" style="width:100%;height:11rem;object-fit:cover;background:#faf1de;" loading="lazy"/>
+        <div style="padding:1.25rem;">
+          {% if herb.is_featured %}<span class="badge-green" style="margin-bottom:.5rem;display:inline-block;">Featured</span>{% endif %}
+          <h3 style="font-weight:700;color:#14291D;font-size:1.05rem;margin-bottom:.2rem;">{{ herb.common_name }}</h3>
+          {% if herb.scientific_name %}<p style="font-size:.75rem;color:#8fa298;font-style:italic;margin-bottom:.4rem;">{{ herb.scientific_name }}</p>{% endif %}
+          <p class="muted-text" style="font-size:.82rem;">{{ herb.description|truncatechars:80 }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:5rem 0;"><p class="muted-text">No herbs found.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

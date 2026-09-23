@@ -1,0 +1,27 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Anatomy{% endblock %}
+{% block page_title %}Anatomy{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><span class="card-title">All Anatomy Topics</span>
+    <a href="{% url 'dashboard:health_anatomy_add' %}" class="card-link">+ Add Topic</a></div>
+  {% if topics %}
+  <table>
+    <thead><tr><th>Name</th><th>System</th><th>Sort Order</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for t in topics %}
+      <tr>
+        <td><strong>{{ t.name }}</strong></td>
+        <td>{{ t.get_system_display }}</td>
+        <td>{{ t.sort_order }}</td>
+        <td>{% if t.is_active %}<span class="badge active">Active</span>{% else %}<span class="badge cancelled">Inactive</span>{% endif %}</td>
+        <td><a href="{% url 'dashboard:health_anatomy_edit' t.pk %}" class="btn btn-sm">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No anatomy topics yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

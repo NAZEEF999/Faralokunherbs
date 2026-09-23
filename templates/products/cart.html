@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:2rem;">Your Cart</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div style="padding:.875rem;margin-bottom:1rem;border-radius:.6rem;background:#e9f4ea;border:1px solid rgba(58,125,68,.25);">
+        <p style="color:#2D5A27;font-size:.875rem;">{{ message }}</p>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if cart and cart.total_items %}
+    <div class="glass-card" style="padding:0;overflow:hidden;margin-bottom:1.5rem;">
+      {% for item in cart.item_list %}
+      <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4" style="padding:1.25rem 1.5rem;{% if not forloop.last %}border-bottom:1px solid #E6ECE8;{% endif %}">
+        <img src="{% if item.product.image_url %}{{ item.product.image_url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" loading="lazy"
+             alt="{{ item.product.title }}" class="flex-shrink-0" style="width:4.5rem;height:4.5rem;object-fit:cover;border-radius:.75rem;background:#faf1de;"/>
+        <div class="flex-1" style="min-width:8rem;">
+          <a href="{% url 'api:product_detail' item.product.slug %}" style="color:#14291D;font-weight:700;font-size:.95rem;text-decoration:none;">{{ item.product.title }}</a>
+          <p style="color:#5b6b5e;font-size:.8rem;margin-top:.25rem;">Price shared personally on enquiry.</p>
+        </div>
+        <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3" style="order:1;flex-wrap:wrap;">
+          <form method="post" action="{% url 'api:cart_update' item.pk %}" style="display:flex;align-items:center;gap:.5rem;">
+            {% csrf_token %}
+            <label style="font-size:.72rem;color:#8fa298;font-weight:600;">QTY</label>
+            <input type="number" name="quantity" value="{{ item.quantity }}" min="1"{% if item.product.track_stock %} max="{{ item.product.stock_quantity }}"{% endif %} class="form-input" style="width:4rem;padding:.45rem;text-align:center;"/>
+            <button type="submit" class="btn-ghost" style="padding:.45rem .8rem;font-size:.78rem;">Update</button>
+          </form>
+          <form method="post" action="{% url 'api:cart_remove' item.pk %}">
+            {% csrf_token %}
+            <button type="submit" style="display:inline-flex;align-items:center;gap:.35rem;color:#c0453d;background:#fdecea;border:1px solid rgba(192,69,61,.25);font-size:.78rem;cursor:pointer;padding:.45rem .8rem;border-radius:.5rem;line-height:1;" title="Remove"><svg style="width:.95em;height:.95em;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg> Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="glass-card" style="padding:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <span class="muted-text" style="font-size:.875rem;">{{ cart.total_items }} item{{ cart.total_items|pluralize }} in your cart</span>
+        <p style="font-size:.8rem;color:#8fa298;margin-top:.25rem;">We'll confirm pricing personally when you place your order.</p>
+      </div>
+      <div style="display:flex;gap:.75rem;">
+        <a href="{% url 'api:products' %}" class="btn-ghost">Continue Shopping</a>
+        <a href="{% url 'api:checkout' %}" class="btn-primary">Checkout &rarr;</a>
+      </div>
+    </div>
+    {% else %}
+    <div class="glass-card" style="padding:3rem;text-align:center;">
+      <p class="muted-text" style="margin-bottom:1.5rem;">Your cart is empty.</p>
+      <a href="{% url 'api:products' %}" class="btn-primary">Browse Products</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

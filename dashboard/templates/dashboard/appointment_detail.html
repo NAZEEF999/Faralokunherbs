@@ -1,0 +1,59 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Appointment — {{ appointment.contact_name }}{% endblock %}
+{% block page_title %}Appointment Details{% endblock %}
+{% block content %}
+
+<a href="{% url 'dashboard:appointments' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to appointments</a>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">{{ appointment.contact_name }}</span>
+      <span class="badge {{ appointment.status }}">{{ appointment.get_status_display }}</span></div>
+
+    <table>
+      <tr><td style="color:var(--muted);width:40%;">Service</td><td>{{ appointment.service_name|default:"General consultation" }}</td></tr>
+      <tr><td style="color:var(--muted);">Date</td><td>{{ appointment.appointment_date|default:"To be confirmed" }}</td></tr>
+      <tr><td style="color:var(--muted);">Time</td><td>{{ appointment.preferred_time|default:"To be confirmed" }}</td></tr>
+      <tr><td style="color:var(--muted);">Phone</td><td>{{ appointment.contact_phone }}</td></tr>
+      <tr><td style="color:var(--muted);">Email</td><td>{{ appointment.contact_email|default:"Not provided" }}</td></tr>
+      <tr><td style="color:var(--muted);">Notes</td><td>{{ appointment.notes|default:"—" }}</td></tr>
+      <tr><td style="color:var(--muted);">
+        {% if appointment.patient %}Registered patient{% else %}Booking type{% endif %}
+      </td><td>
+        {% if appointment.patient %}
+          <a href="{% url 'dashboard:patient_detail' appointment.patient.pk %}">{{ appointment.patient.full_name }} &rarr;</a>
+        {% else %}Guest (no account){% endif %}
+      </td></tr>
+      <tr><td style="color:var(--muted);">Submitted</td><td>{{ appointment.created_at|date:"M j, Y — g:i A" }}</td></tr>
+    </table>
+
+    {% if wa_url %}
+    <a href="{{ wa_url }}" target="_blank" class="wa-btn" style="margin-top:1rem;display:inline-flex;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.07-1.32A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+      Open pre-filled WhatsApp notification
+    </a>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">
+      Opens WhatsApp with this appointment's details pre-filled to your configured admin number —
+      it does not send automatically without your action.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Update Status</span></div>
+    <form method="post" action="{% url 'dashboard:appointment_update_status' appointment.pk %}">
+      {% csrf_token %}
+      <div class="form-group" style="display:flex;gap:.6rem;flex-wrap:wrap;">
+        <button type="submit" name="status" value="confirmed" class="btn btn-primary">Confirm</button>
+        <button type="submit" name="status" value="completed" class="btn">Mark Completed</button>
+        <button type="submit" name="status" value="cancelled" class="btn btn-danger">Cancel</button>
+        <button type="submit" name="status" value="pending" class="btn">Set Pending</button>
+      </div>
+    </form>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.5rem;">
+      Confirming checks that this exact date and time isn't already confirmed for another
+      appointment before saving — the backend blocks it even if this form is submitted directly.
+    </p>
+  </div>
+</div>
+{% endblock %}

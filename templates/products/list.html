@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<section style="position:relative;background:#14291D;padding-top:9rem;padding-bottom:4rem;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:url('{% static "img/products-hero.jpg" %}');background-size:cover;background-position:center;opacity:.18;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,41,29,.3),#14291D 90%);"></div>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style="position:relative;">
+    <span style="color:#9fb3a4;font-size:.85rem;">Home / Products</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.25rem,5vw,3.5rem);color:#FFFFFF;font-weight:700;margin-top:.75rem;">Our Products</h1>
+    <p style="color:#9fb3a4;max-width:36rem;margin:1rem auto 0;">Traditional herbal remedies crafted with ancient wisdom. Prices are shared personally — enquire about any product and we'll reply with details.</p>
+  </div>
+</section>
+
+{% if live_promotions %}
+<section style="background:#FFF8ED;padding:2.5rem 0;">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <span class="badge-gold" style="margin-bottom:1rem;display:inline-block;"><svg style="width:1em;height:1em;display:inline-block;vertical-align:-.12em;margin-right:.35rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248z"/></svg>Special Offers</span>
+    <div class="promo-carousel">
+      {% for promo in live_promotions %}
+      <a href="{% url 'api:product_detail' promo.product.slug %}" class="glass-card reveal promo-card" style="overflow:hidden;text-decoration:none;position:relative;">
+        <span style="position:absolute;top:.6rem;left:.6rem;background:#B0683A;color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:9999px;z-index:1;">Promo</span>
+        <img src="{% if promo.product.image_url %}{{ promo.product.image_url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" loading="lazy"
+             alt="{{ promo.product.title }}" style="width:100%;height:8rem;object-fit:cover;background:#faf1de;"/>
+        <div style="padding:.9rem;">
+          <h4 style="font-weight:700;color:#14291D;font-size:.85rem;margin-bottom:.4rem;">{{ promo.product.title }}</h4>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem;">
+            {% if promo.product.in_stock %}
+            <form method="post" action="{% url 'api:cart_add' promo.product.slug %}" data-ajax-add style="flex:1;">
+              {% csrf_token %}
+              <input type="hidden" name="quantity" value="1"/>
+              <input type="hidden" name="next" value="{% url 'api:products' %}"/>
+              <button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:.72rem;padding:.4rem .5rem;min-width:0;">
+                <svg style="width:.85rem;height:.85rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Add</span>
+              </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'api:product_detail' promo.product.slug %}#enquire" class="btn-ghost" style="flex:1;justify-content:center;font-size:.72rem;padding:.4rem .5rem;white-space:nowrap;min-width:0;">Enquire</a>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section-padding">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    {% if categories %}
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:2.5rem;">
+      <a href="{% url 'api:products' %}" class="{% if not active_category %}badge-green{% else %}badge-sage{% endif %}" style="text-decoration:none;padding:.4rem 1rem;">All</a>
+      {% for cat in categories %}
+      <a href="?category={{ cat.slug }}" class="{% if active_category == cat.slug %}badge-green{% else %}badge-sage{% endif %}" style="text-decoration:none;padding:.4rem 1rem;">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if products %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 featured-grid">
+      {% for product in products %}
+      <div class="glass-card reveal" style="display:flex;flex-direction:column;overflow:hidden;position:relative;">
+        {% if product.has_discount %}<span style="position:absolute;top:.9rem;left:.9rem;background:#B0683A;color:#fff;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:9999px;z-index:1;">Promo</span>{% endif %}
+        <a href="{% url 'api:product_detail' product.slug %}">
+          <img src="{% if product.image_url %}{{ product.image_url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" loading="lazy"
+               alt="{{ product.title }}" style="width:100%;height:14rem;object-fit:cover;background:#faf1de;"/>
+        </a>
+        <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+            {% if product.category %}<span class="badge-gold">{{ product.category.name }}</span>{% else %}<span></span>{% endif %}
+            {% if product.is_featured %}<span class="badge-green">Featured</span>{% endif %}
+          </div>
+          <a href="{% url 'api:product_detail' product.slug %}" style="text-decoration:none;">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.375rem;color:#14291D;font-weight:700;margin-bottom:.75rem;">{{ product.title }}</h3>
+          </a>
+          <p class="muted-text" style="font-size:.875rem;line-height:1.6;flex:1;">{{ product.short_description }}</p>
+          {% if not product.in_stock %}<p style="color:#c0453d;font-size:.78rem;margin-top:.5rem;font-weight:600;">Currently out of stock</p>{% endif %}
+          <div style="margin-top:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+            {% if product.in_stock %}
+            <form method="post" action="{% url 'api:cart_add' product.slug %}" data-ajax-add style="flex:1;">
+              {% csrf_token %}
+              <input type="hidden" name="quantity" value="1"/>
+              <input type="hidden" name="next" value="{% url 'api:products' %}{% if active_category %}?category={{ active_category }}{% endif %}"/>
+              <button type="submit" class="btn-primary" style="width:100%;justify-content:center;padding:.5rem .6rem;font-size:.8rem;min-width:0;">
+                <svg style="width:1rem;height:1rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Add to Cart</span>
+              </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'api:product_detail' product.slug %}#enquire" class="btn-ghost" style="flex:1;justify-content:center;padding:.5rem .6rem;font-size:.8rem;white-space:nowrap;min-width:0;">Enquire</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:5rem 0;">
+      <p class="muted-text">No products available at the moment.</p>
+    </div>
+    {% endif %}
+
+    <div class="glass-card" style="padding:1.5rem;margin-top:3rem;text-align:center;">
+      <p class="muted-text" style="font-size:.875rem;"><strong style="color:#14291D;">Note:</strong> All products are traditional herbal preparations. Prices are never listed online — tap <strong style="color:#3A7D44;">Enquire</strong> on any product and our team will reply personally with pricing, availability and delivery details.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

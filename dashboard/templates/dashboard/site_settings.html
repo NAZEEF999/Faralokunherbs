@@ -1,0 +1,327 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Site Settings{% endblock %}
+{% block page_title %}Site Settings{% endblock %}
+{% block content %}
+{% if form.errors %}
+<div class="card" style="margin-bottom:1.25rem;border-left:4px solid var(--danger);">
+  <p style="color:var(--danger);font-weight:600;font-size:.9rem;margin-bottom:.5rem;">Please fix the following before saving:</p>
+  <ul style="margin:0;padding-left:1.2rem;">
+    {% for field in form %}
+      {% for error in field.errors %}
+      <li style="color:var(--danger);font-size:.85rem;">{{ field.label }}: {{ error }}</li>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+<form method="post" enctype="multipart/form-data" style="max-width:44rem;">
+  {% csrf_token %}
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Contact &amp; Branding</span></div>
+    <div class="form-group">
+      <label class="form-label">Site Name</label>{{ form.site_name }}
+      {% if form.site_name.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.site_name.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tagline</label>{{ form.tagline }}
+      {% if form.tagline.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.tagline.errors.0 }}</p>{% endif %}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">Contact Phone</label>{{ form.contact_phone }}
+        {% if form.contact_phone.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.contact_phone.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Phone 2 (optional)</label>{{ form.contact_phone2 }}
+        {% if form.contact_phone2.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.contact_phone2.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp Number (digits only, e.g. 2348012345678)</label>{{ form.whatsapp_number }}
+      {% if form.whatsapp_number.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.whatsapp_number.errors.0 }}</p>{% endif %}
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">
+        This is the number every "Notify via WhatsApp" button across the site and dashboard sends to — changing it here updates everywhere at once.
+      </p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp Greeting Message</label>{{ form.whatsapp_greeting }}
+      {% if form.whatsapp_greeting.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.whatsapp_greeting.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Email</label>{{ form.contact_email }}
+      {% if form.contact_email.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.contact_email.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address</label>{{ form.address }}
+      {% if form.address.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.address.errors.0 }}</p>{% endif %}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">City</label>{{ form.city }}
+        {% if form.city.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.city.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Country</label>{{ form.country }}
+        {% if form.country.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.country.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Booking Notifications</span></div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">
+      Independent toggles — turn either or both on. A booking is always saved regardless of these settings.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.email_notifications_enabled }} Email notifications
+      </label>
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.whatsapp_notifications_enabled }} WhatsApp notifications
+      </label>
+    </div>
+    {% if not whatsapp_api_configured %}
+    <p style="font-size:.78rem;background:var(--warn-bg);color:var(--warn);padding:.6rem .8rem;border-radius:.5rem;margin-top:.75rem;">
+      &#9888; The WhatsApp Business API isn't configured on the server yet (WHATSAPP_BUSINESS_API_TOKEN /
+      WHATSAPP_BUSINESS_PHONE_NUMBER_ID). Turning WhatsApp notifications on won't send anything until a
+      developer sets those — you'll see a failed-notification alert here in the dashboard if it's on
+      without them configured.
+    </p>
+    {% endif %}
+    <div class="form-group" style="margin-top:1rem;">
+      <label class="form-label">Booking Notification Email</label>{{ form.booking_notification_email }}
+      {% if form.booking_notification_email.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.booking_notification_email.errors.0 }}</p>{% endif %}
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Falls back to Contact Email above if left blank.</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Booking WhatsApp Number</label>{{ form.booking_whatsapp_number }}
+      {% if form.booking_whatsapp_number.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.booking_whatsapp_number.errors.0 }}</p>{% endif %}
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Digits only with country code. Falls back to the WhatsApp Number above if left blank.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Branding &amp; Media</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">Logo</label>{{ form.logo }}
+        {% if form.logo.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.logo.errors.0 }}</p>{% endif %}
+        {% if form.instance.logo %}<img src="{{ form.instance.logo.url }}" style="height:2.5rem;margin-top:.5rem;">{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Favicon</label>{{ form.favicon }}
+        {% if form.favicon.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.favicon.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin-bottom:.25rem;">
+          {{ form.logo_contains_name }} Logo already contains the site name
+        </label>
+        <p style="font-size:.75rem;color:#888;margin:0;">Check this if your uploaded logo is a wordmark that already shows the company name — the public header will then skip repeating the site name next to the logo.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">Primary Color</label>{{ form.primary_color }}
+        {% if form.primary_color.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.primary_color.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Secondary Color</label>{{ form.secondary_color }}
+        {% if form.secondary_color.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.secondary_color.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Accent Color</label>{{ form.accent_color }}
+        {% if form.accent_color.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.accent_color.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Homepage &amp; SEO</span></div>
+    <div class="form-group">
+      <label class="form-label">Hero Headline</label>{{ form.hero_headline }}
+      {% if form.hero_headline.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.hero_headline.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hero Subheadline</label>{{ form.hero_subheadline }}
+      {% if form.hero_subheadline.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.hero_subheadline.errors.0 }}</p>{% endif %}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">Primary CTA Text</label>{{ form.hero_cta_primary }}
+        {% if form.hero_cta_primary.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.hero_cta_primary.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Secondary CTA Text</label>{{ form.hero_cta_secondary }}
+        {% if form.hero_cta_secondary.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.hero_cta_secondary.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hero Video URL (YouTube/embed URL, or a local file like /static/vid/0917.mp4 — or leave blank)</label>{{ form.hero_video_url }}
+      {% if form.hero_video_url.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.hero_video_url.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Footer Description</label>{{ form.footer_description }}
+      {% if form.footer_description.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.footer_description.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">SEO Title</label>{{ form.seo_title }}
+      {% if form.seo_title.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.seo_title.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">SEO Description</label>{{ form.seo_description }}
+      {% if form.seo_description.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.seo_description.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">SEO Keywords</label>{{ form.seo_keywords }}
+      {% if form.seo_keywords.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.seo_keywords.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Promotional Video Section</span></div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">
+      A dedicated video section on the homepage (under Testimonials). Turn it on and add an embeddable video URL;
+      a poster image is used as the fallback thumbnail before the video loads.
+    </p>
+    <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0 0 1rem;">
+      {{ form.promo_video_enabled }} Show promotional video section on homepage
+    </label>
+    <div class="form-group">
+      <label class="form-label">Section Title</label>{{ form.promo_video_title }}
+      {% if form.promo_video_title.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_title.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Section Description</label>{{ form.promo_video_description }}
+      {% if form.promo_video_description.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_description.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Video URL (YouTube/embed URL, or a local file like /static/vid/0917.mp4)</label>{{ form.promo_video_url }}
+      {% if form.promo_video_url.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_url.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Poster Image (fallback thumbnail)</label>{{ form.promo_video_poster }}
+      {% if form.promo_video_poster.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_poster.errors.0 }}</p>{% endif %}
+      {% if form.instance.promo_video_poster %}<img src="{{ form.instance.promo_video_poster.url }}" style="height:4rem;margin-top:.5rem;border-radius:.5rem;">{% endif %}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="form-group">
+        <label class="form-label">Action Button Text (e.g. &ldquo;Book a Consultation&rdquo;)</label>{{ form.promo_video_cta_label }}
+        {% if form.promo_video_cta_label.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_cta_label.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Action Button Link</label>{{ form.promo_video_cta_url }}
+        {% if form.promo_video_cta_url.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.promo_video_cta_url.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Social Links</span></div>
+    <div class="form-group">
+      <label class="form-label">Facebook</label>{{ form.social_facebook }}
+      {% if form.social_facebook.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.social_facebook.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instagram</label>{{ form.social_instagram }}
+      {% if form.social_instagram.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.social_instagram.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">TikTok</label>{{ form.social_tiktok }}
+      {% if form.social_tiktok.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.social_tiktok.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">About Page</span></div>
+    <div class="form-group">
+      <label class="form-label">About Title</label>{{ form.about_title }}
+      {% if form.about_title.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.about_title.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">About Description</label>{{ form.about_description }}
+      {% if form.about_description.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.about_description.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mission</label>{{ form.about_mission }}
+      {% if form.about_mission.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.about_mission.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Vision</label>{{ form.about_vision }}
+      {% if form.about_vision.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.about_vision.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Registration No.</label>{{ form.registration_no }}
+      {% if form.registration_no.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.registration_no.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header"><span class="card-title">Notifications</span></div>
+    <div class="form-group">
+      <label class="form-label">Notification Email</label>{{ form.notification_email }}
+      {% if form.notification_email.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.notification_email.errors.0 }}</p>{% endif %}
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">
+        Where enquiry, order and push-related admin emails go. Falls back to the Contact Email above if left blank.
+      </p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.enquiry_email_notifications_enabled }} Email me on new enquiries
+      </label>
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.order_email_notifications_enabled }} Email me on new orders
+      </label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.75rem;">
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.notification_whatsapp_enabled }} WhatsApp me on new activity
+      </label>
+      <label class="form-group" style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin:0;">
+        {{ form.notification_sound_enabled }} Sound on in-dashboard notifications
+      </label>
+    </div>
+    <div class="form-group" style="margin-top:.75rem;">
+      <label class="form-label">Notification Sound</label>{{ form.notification_sound }}
+      {% if form.notification_sound.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.notification_sound.errors.0 }}</p>{% endif %}
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Plays for staff using the dashboard when a push arrives. Players can also pick per-device from the bell menu.</p>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Test Notifications</span></div>
+  <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">
+    Send yourself a live test of each channel before you rely on it. Each one reports back with a success/failure message.
+  </p>
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-start;">
+    <form method="post" action="{% url 'dashboard:site_settings' %}" id="test_email_form" class="form-group" style="margin:0;flex:1;min-width:16rem;max-width:24rem;">
+      {% csrf_token %}
+      <label class="form-label" for="test_recipient">Recipient for the test email</label>
+      <div style="display:flex;gap:.5rem;">
+        <input type="text" name="test_recipient" id="test_recipient" placeholder="e.g. you@example.com" style="flex:1;padding:.55rem .7rem;border:1px solid var(--border);border-radius:.5rem;font-size:.85rem;">
+        <button type="submit" name="test_action" value="test_email" class="btn">Send Test Email</button>
+      </div>
+      <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Leave blank to use the Contact Email fallback.</p>
+    </form>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+      <form method="post" action="{% url 'dashboard:site_settings' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" name="test_action" value="test_whatsapp" class="btn btn-sm">Test WhatsApp</button>
+      </form>
+      <form method="post" action="{% url 'dashboard:site_settings' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" name="test_action" value="test_push" class="btn btn-sm">Test Push</button>
+      </form>
+    </div>
+  </div>
+  {% if not whatsapp_api_configured %}
+  <p style="font-size:.78rem;color:var(--warn);margin-top:.75rem;">&#9888; WhatsApp testing is disabled until the WhatsApp Business API is configured on the server.</p>
+  {% endif %}
+  {% if not push_configured %}
+  <p style="font-size:.78rem;color:var(--warn);margin-top:.35rem;">&#9888; Push testing is disabled until VAPID keys are configured in the server .env.</p>
+  {% endif %}
+</div>
+{% endblock %}

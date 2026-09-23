@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;display:flex;align-items:center;justify-content:center;min-height:80vh;">
+  <div class="glass-card" style="padding:3rem;border-radius:1.5rem;max-width:32rem;width:100%;margin:0 1rem;text-align:center;">
+    <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(58,125,68,.2);border:2px solid rgba(58,125,68,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <svg style="width:2rem;height:2rem;color:#3A7D44;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;margin-bottom:.75rem;">Booking Received</h1>
+    <p style="color:#A0B5A3;margin-bottom:.5rem;">Your appointment request has been submitted successfully.</p>
+    <p style="color:#D4E8D6;margin-bottom:1rem;">Reference: <strong style="color:#FFD9A8;">{{ booking_ref }}</strong></p>
+    {% if appointment.service_name %}<p style="color:#A0B5A3;margin-bottom:.5rem;">Service: <strong style="color:#E8F0E9;">{{ appointment.service_name }}</strong></p>{% endif %}
+    {% if appointment.appointment_date %}<p style="color:#A0B5A3;margin-bottom:.5rem;">Date: <strong style="color:#E8F0E9;">{{ appointment.appointment_date }}</strong></p>{% endif %}
+    {% if appointment.preferred_time %}<p style="color:#A0B5A3;margin-bottom:1.5rem;">Time: <strong style="color:#E8F0E9;">{{ appointment.preferred_time }}</strong></p>{% endif %}
+    <p class="healing-quote" style="font-size:1.125rem;margin-bottom:1rem;">"Healing hands, divine touch."</p>
+    <div style="text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:.75rem;padding:1rem 1.25rem;margin:0 0 1.5rem;font-size:.83rem;color:#A0B5A3;line-height:1.7;">
+      <strong style="color:#E8F0E9;">Next steps:</strong><br/>
+      1. We'll call <strong style="color:#E8F0E9;">{{ appointment.contact_phone }}</strong> to confirm your appointment.<br/>
+      2. Please arrive 10 minutes early for your session.<br/>
+      3. Mention your booking reference when you arrive.
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;">
+      {% if wa_url %}<a href="{{ wa_url }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:#25D366;color:#fff;padding:.75rem 1.4rem;border-radius:9999px;font-size:.875rem;font-weight:600;text-decoration:none;border:none;">WhatsApp Us</a>{% endif %}
+      <a href="{% url 'api:home' %}" class="btn-primary">Back to Home</a>
+      <a href="{% url 'api:services' %}" class="btn-ghost">Explore Services</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

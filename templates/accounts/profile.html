@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<section style="padding-top:6rem;padding-bottom:5rem;">
+  <div class="max-w-xl mx-auto px-4 sm:px-6">
+    <a href="{% url 'accounts:dashboard' %}" style="color:#A0B5A3;font-size:.8125rem;text-decoration:none;">&larr; Back to Dashboard</a>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;margin-top:.5rem;margin-bottom:2rem;">Edit Profile</h1>
+
+    <div class="glass-card" style="padding:2rem;border-radius:1.5rem;">
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">First Name</label>
+            {{ form.first_name }}
+          </div>
+          <div>
+            <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">Last Name</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">Email</label>
+          <input type="email" value="{{ request.user.email }}" disabled class="form-input" style="opacity:.5;cursor:not-allowed;"/>
+          <p style="font-size:.75rem;color:rgba(160,181,163,.5);margin-top:.25rem;">Email cannot be changed. Contact admin if needed.</p>
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">Phone</label>
+          {{ form.phone }}
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">Date of Birth</label>
+          {{ form.date_of_birth }}
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;color:#A0B5A3;margin-bottom:.3rem;">Address</label>
+          {{ form.address }}
+        </div>
+        {% if form.errors %}
+        <div style="background:rgba(160,69,58,.1);border:1px solid rgba(160,69,58,.3);border-radius:.5rem;padding:.75rem;">
+          <p style="color:#f87171;font-size:.875rem;">Please correct the errors above.</p>
+        </div>
+        {% endif %}
+        <div style="display:flex;gap:.75rem;">
+          <button type="submit" class="btn-primary">Save Changes</button>
+          <a href="{% url 'accounts:dashboard' %}" class="btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

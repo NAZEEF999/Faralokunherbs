@@ -1,0 +1,33 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Patients{% endblock %}
+{% block page_title %}Patients{% endblock %}
+{% block content %}
+<div class="card">
+  <form method="get" style="margin-bottom:1.1rem;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search name, email, phone..." class="form-input" style="max-width:20rem;">
+  </form>
+  {% if page_obj %}
+  <table>
+    <thead><tr><th>Patient</th><th>Email</th><th>Phone</th><th>Registered</th><th></th></tr></thead>
+    <tbody>
+      {% for p in page_obj %}
+      <tr>
+        <td><strong>{{ p.full_name }}</strong></td>
+        <td>{{ p.user.email }}</td>
+        <td>{{ p.phone|default:"—" }}</td>
+        <td>{{ p.created_at|date:"M j, Y" }}</td>
+        <td><a href="{% url 'dashboard:patient_detail' p.pk %}" class="btn btn-sm">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">&larr;</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}">&rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No registered patients yet — most bookings are guests, which is expected.</div>
+  {% endif %}
+</div>
+{% endblock %}

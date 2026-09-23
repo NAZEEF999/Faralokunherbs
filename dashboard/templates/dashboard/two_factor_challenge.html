@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verification Code | {{ site.site_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;font-family:'Inter',sans-serif;background:#14291d;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+  .box{background:#fff;border-radius:1rem;padding:2.5rem;width:100%;max-width:23rem;margin:1rem;}
+  h1{font-size:1.15rem;margin:0 0 .35rem;}
+  p.sub{color:#6b7d72;font-size:.85rem;margin:0 0 1.5rem;}
+  label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.35rem;}
+  input{width:100%;padding:.65rem .85rem;border:1px solid #e6ece8;border-radius:.55rem;font-family:inherit;font-size:1.1rem;letter-spacing:.15em;text-align:center;margin-bottom:1.1rem;box-sizing:border-box;}
+  button{width:100%;padding:.75rem;border:none;border-radius:.6rem;background:#3A7D44;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .msg{border-radius:.5rem;padding:.7rem .9rem;font-size:.8rem;margin-bottom:1rem;}
+  .msg.error{background:#fbe9e7;color:#c0453d;}
+  .msg.success{background:#e9f4ea;color:#3A7D44;}
+  .msg.warning{background:#fff8ed;color:#8a6420;}
+  .toggle{text-align:center;margin-top:1.1rem;font-size:.8rem;}
+  .toggle a{color:#6b7d72;text-decoration:none;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Enter your verification code</h1>
+    <p class="sub">Signed in as <strong>{{ username }}</strong>. Open your authenticator app for the current 6-digit code.</p>
+
+    {% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
+
+    <form method="post" id="totp-form">
+      {% csrf_token %}
+      <label for="code">6-digit code</label>
+      <input type="text" name="code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autofocus required>
+      <button type="submit">Verify &amp; Sign In</button>
+    </form>
+    <div class="toggle">
+      <a href="#" onclick="document.getElementById('recovery-form').style.display='block';this.parentElement.style.display='none';return false;">Use a recovery code instead</a>
+    </div>
+    <form method="post" id="recovery-form" style="display:none;margin-top:1rem;">
+      {% csrf_token %}
+      <input type="hidden" name="use_recovery" value="1">
+      <label for="rcode">Recovery code</label>
+      <input type="text" name="code" id="rcode" style="letter-spacing:.05em;">
+      <button type="submit">Verify &amp; Sign In</button>
+    </form>
+  </div>
+</body>
+</html>

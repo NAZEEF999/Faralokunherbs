@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    @page { size: A5; margin: 1.5cm; }
+    body { font-family: Georgia, serif; color: #1a1a1a; font-size: 11pt; }
+    .header { text-align: center; border-bottom: 2px solid #3A7D44; padding-bottom: 12px; margin-bottom: 16px; }
+    .header h1 { color: #3A7D44; font-size: 18pt; margin: 0 0 4px; }
+    .header p  { color: #666; font-size: 9pt; margin: 2px 0; }
+    .title { text-align: center; font-size: 13pt; color: #2D5A27; font-weight: bold; margin: 12px 0; letter-spacing: .05em; text-transform: uppercase; }
+    .ref { text-align: center; font-size: 8pt; color: #999; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    tr { border-bottom: 1px solid #e8f0e9; }
+    td { padding: 7px 4px; font-size: 10pt; }
+    td.label { color: #3A7D44; font-weight: bold; width: 40%; }
+    .status-box { background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 6px; padding: 8px 12px; text-align: center; font-weight: bold; color: #2D5A27; margin-bottom: 14px; }
+    .notes { background: #f8fdf8; border-left: 3px solid #3A7D44; padding: 8px 12px; font-size: 9.5pt; color: #444; border-radius: 0 4px 4px 0; margin-bottom: 14px; }
+    .footer { border-top: 1px solid #c8e6c9; padding-top: 10px; text-align: center; font-size: 8.5pt; color: #666; }
+    .footer .quote { font-style: italic; color: #C49A3C; margin-bottom: 4px; font-size: 10pt; }
+    .watermark { color: #3A7D44; font-size: 8pt; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ site.site_name }}</h1>
+    {% if site.tagline %}<p>{{ site.tagline }}</p>{% endif %}
+    <p>{{ site.address }}</p>
+    <p>Tel: {{ site.contact_phone }} &nbsp;|&nbsp; {{ site.contact_email }}</p>
+  </div>
+
+  <div class="title">Appointment Receipt</div>
+  <div class="ref">Ref #{{ appointment.pk|stringformat:"05d" }} &nbsp;&middot;&nbsp; Issued: {{ now|date:"N j, Y" }}</div>
+
+  <div class="status-box">
+    Status: {{ appointment.get_status_display|upper }}
+  </div>
+
+  <table>
+    <tr><td class="label">Patient Name</td><td>{{ appointment.contact_name }}</td></tr>
+    <tr><td class="label">Phone</td><td>{{ appointment.contact_phone }}</td></tr>
+    {% if appointment.contact_email %}<tr><td class="label">Email</td><td>{{ appointment.contact_email }}</td></tr>{% endif %}
+    <tr><td class="label">Service</td><td>{{ appointment.service_name|default:"General Consultation" }}</td></tr>
+    <tr><td class="label">Date</td><td>{% if appointment.appointment_date %}{{ appointment.appointment_date }}{% else %}To be confirmed{% endif %}</td></tr>
+    <tr><td class="label">Time</td><td>{% if appointment.preferred_time %}{{ appointment.preferred_time }}{% else %}To be confirmed{% endif %}</td></tr>
+    <tr><td class="label">Booked On</td><td>{{ appointment.created_at|date:"N j, Y g:i A" }}</td></tr>
+  </table>
+
+  {% if appointment.notes %}
+  <div class="notes"><strong>Notes:</strong> {{ appointment.notes }}</div>
+  {% endif %}
+
+  <div class="footer">
+    <div class="quote">"Healing hands, divine touch."</div>
+    <p>WE CURE, ALLAH HEALS.</p>
+    <p class="watermark">{{ site.registration_no }} &nbsp;&middot;&nbsp; {{ site.city }}, {{ site.country }}</p>
+    <p style="font-size:8pt;color:#bbb;margin-top:6px;">This receipt is generated automatically. Please keep it for your records.</p>
+  </div>
+</body>
+</html>

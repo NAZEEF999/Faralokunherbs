@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;display:flex;align-items:center;justify-content:center;min-height:80vh;">
+  <div class="glass-card" style="padding:3rem;border-radius:1.5rem;max-width:34rem;width:100%;margin:0 1rem;text-align:center;">
+    <div style="width:4rem;height:4rem;border-radius:50%;background:rgba(58,125,68,.2);border:2px solid rgba(58,125,68,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <svg style="width:2rem;height:2rem;color:#3A7D44;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#14291D;margin-bottom:.75rem;">Enquiry Sent!</h1>
+    <p style="color:#5b6b5e;margin-bottom:.5rem;">Thank you, <strong style="color:#14291D;">{{ inquiry.name }}</strong>.</p>
+    <p style="color:#8fa298;font-size:.8rem;margin-bottom:.5rem;">Reference <strong style="color:#3A7D44;">@{{ inquiry.pk }}</strong> — please keep it handy.</p>
+
+    <div style="text-align:left;background:#FFF8ED;border:1px solid #F0D8B8;border-radius:.75rem;padding:1rem 1.25rem;margin:1.25rem 0;font-size:.83rem;color:#5b4b30;line-height:1.7;">
+      <strong>Next steps:</strong><br/>
+      1. We'll reply to your phone/email with the current price for
+      <strong>{{ product.title }}</strong>.<br/>
+      2. We confirm availability, delivery options and payment arrangements.<br/>
+      3. Nothing is charged online.
+    </div>
+
+    <p style="color:#8fa298;font-size:.8rem;margin-bottom:1.5rem;">Questions? Message us below — mention your reference.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;">
+      {% if wa_url %}<a href="{{ wa_url }}" target="_blank" rel="noopener" class="btn-gold">Message on WhatsApp</a>{% endif %}
+      <a href="{% url 'api:product_detail' product.slug %}" class="btn-primary">View Product</a>
+      <a href="{% url 'api:products' %}" class="btn-ghost">Browse Products</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

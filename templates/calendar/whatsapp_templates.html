@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="padding-top:6rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;">WhatsApp Reply Templates</h1>
+        <p style="color:#A0B5A3;font-size:.875rem;">Click any message to copy it, then paste into WhatsApp.</p>
+      </div>
+      <a href="{% url 'api:admin_calendar' %}" class="btn-ghost" style="font-size:.875rem;">&larr; Calendar</a>
+    </div>
+
+    <!-- Group by category -->
+    {% regroup templates by category as category_list %}
+    {% for cat in category_list %}
+    <div style="margin-bottom:2.5rem;">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.375rem;color:#C49A3C;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(196,154,60,.15);">{{ cat.grouper }}</h2>
+      <div class="space-y-3">
+        {% for tmpl in cat.list %}
+        <div class="glass-card" style="padding:1.25rem;cursor:pointer;transition:all .2s;" onclick="copyTemplate(this, '{{ tmpl.message|escapejs }}')" title="Click to copy">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+            <div style="flex:1;">
+              <p style="color:#E8F0E9;font-size:.9375rem;font-weight:500;margin-bottom:.5rem;">{{ tmpl.title }}</p>
+              <p style="color:#A0B5A3;font-size:.875rem;line-height:1.6;white-space:pre-wrap;">{{ tmpl.message }}</p>
+            </div>
+            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.5rem;">
+              <div class="copy-btn" style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:rgba(58,125,68,.1);border:1px solid rgba(58,125,68,.2);display:flex;align-items:center;justify-content:center;transition:all .2s;">
+                <svg style="width:1rem;height:1rem;color:#3A7D44;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </div>
+              <span class="copy-label" style="font-size:.6875rem;color:#A0B5A3;">Copy</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- WhatsApp quick open -->
+    {% if site.whatsapp_number %}
+    <div class="glass-card" style="padding:1.25rem;border-color:rgba(37,211,102,.2);">
+      <p style="color:#A0B5A3;font-size:.875rem;margin-bottom:.75rem;">Admin WhatsApp: <strong style="color:#E8F0E9;">{{ site.whatsapp_number }}</strong></p>
+      <a href="https://wa.me/{{ site.whatsapp_number }}" target="_blank" class="btn-primary" style="font-size:.875rem;padding:.625rem 1.125rem;">
+        Open WhatsApp &rarr;
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% block extra_js %}
+<script>
+function copyTemplate(card, message) {
+  navigator.clipboard.writeText(message).then(() => {
+    const btn  = card.querySelector('.copy-btn');
+    const lbl  = card.querySelector('.copy-label');
+    btn.style.background  = 'rgba(58,125,68,.3)';
+    btn.style.borderColor = 'rgba(58,125,68,.6)';
+    lbl.textContent = 'Copied!';
+    lbl.style.color = '#3A7D44';
+    setTimeout(() => {
+      btn.style.background  = 'rgba(58,125,68,.1)';
+      btn.style.borderColor = 'rgba(58,125,68,.2)';
+      lbl.textContent = 'Copy';
+      lbl.style.color = '#A0B5A3';
+    }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = message;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('Copied!');
+  });
+}
+</script>
+{% endblock %}
+{% endblock %}

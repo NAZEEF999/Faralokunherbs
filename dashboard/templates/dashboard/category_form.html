@@ -1,0 +1,15 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Category{% endblock %}
+{% block page_title %}{% if is_edit %}Edit{% else %}Add{% endif %} Category{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:categories' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to categories</a>
+<form method="post" class="card" style="max-width:30rem;">
+  {% csrf_token %}
+  <div class="form-group"><label class="form-label">Name</label>{{ form.name }}</div>
+  <div class="form-group"><label class="form-label">Description</label>{{ form.description }}</div>
+  <div class="form-group"><label class="form-label">Icon Name</label>{{ form.icon_name }}</div>
+  <div class="form-group"><label class="form-label">Sort Order</label>{{ form.sort_order }}</div>
+  <div class="form-group"><label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_active }} Active</label></div>
+  <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Create Category{% endif %}</button>
+</form>
+{% endblock %}

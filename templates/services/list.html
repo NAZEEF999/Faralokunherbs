@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<section style="position:relative;background:#14291D;padding-top:9rem;padding-bottom:4rem;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:url('{% static "img/services-hero.jpg" %}');background-size:cover;background-position:center;opacity:.18;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,41,29,.3),#14291D 90%);"></div>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style="position:relative;">
+    <span style="color:#9fb3a4;font-size:.85rem;">Home / Services</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.25rem,5vw,3.5rem);color:#FFFFFF;font-weight:700;margin-top:.75rem;">Our Services</h1>
+    <p style="color:#9fb3a4;max-width:36rem;margin:1rem auto 0;">We offer a wide range of traditional and herbal healthcare services tailored to your needs.</p>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="flex flex-wrap gap-2 justify-center reveal" style="margin-bottom:3rem;">
+      <a href="{% url 'api:services' %}" style="padding:.5rem 1.1rem;border-radius:9999px;font-size:.82rem;text-decoration:none;font-weight:500;{% if not active_category %}background:#3A7D44;color:#fff;{% else %}background:#fff;color:#3E4B41;border:1px solid #E6ECE8;{% endif %}">All</a>
+      {% for value, label in categories %}
+      <a href="{% url 'api:services' %}?category={{ value }}" style="padding:.5rem 1.1rem;border-radius:9999px;font-size:.82rem;text-decoration:none;font-weight:500;{% if active_category == value %}background:#3A7D44;color:#fff;{% else %}background:#fff;color:#3E4B41;border:1px solid #E6ECE8;{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+
+    {% if services %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for service in services %}
+      <div class="glass-card reveal" style="overflow:hidden;display:flex;flex-direction:column;">
+        <img src="{% if service.image %}{{ service.image.url }}{% else %}{% static 'img/service-placeholder.jpg' %}{% endif %}" loading="lazy"
+             alt="{{ service.title }}" style="width:100%;height:11rem;object-fit:cover;background:#e9f4ea;"/>
+        <div style="padding:1.5rem;display:flex;flex-direction:column;flex:1;">
+          <span class="badge-gold" style="align-self:flex-start;margin-bottom:.6rem;">{{ service.get_category_display }}</span>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:#14291D;font-weight:700;margin-bottom:.6rem;">{{ service.title }}</h3>
+          <p class="muted-text" style="font-size:.875rem;line-height:1.6;flex:1;">{{ service.short_description }}</p>
+          <div style="margin-top:1.25rem;display:flex;align-items:center;justify-content:space-between;">
+            <a href="{% url 'api:service_detail' service.slug %}" style="color:#3A7D44;font-size:.875rem;font-weight:600;text-decoration:none;">Learn More &rarr;</a>
+            <a href="{% url 'api:book' %}?service={{ service.slug }}" class="btn-ghost" style="padding:.4rem .9rem;font-size:.78rem;">Book</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center muted-text" style="padding:4rem 0;">No services found in this category yet.</div>
+    {% endif %}
+
+  </div>
+</section>
+
+<section style="background:#14291D;padding:3.5rem 0;">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#FFFFFF;font-weight:700;margin-bottom:1rem;">Need Help Choosing the Right Service?</h2>
+    <p style="color:#9fb3a4;margin-bottom:1.75rem;">Our team is here to guide you to the right treatment.</p>
+    <a href="{% url 'api:book' %}" class="btn-primary">Book a Consultation &rarr;</a>
+  </div>
+</section>
+{% endblock %}

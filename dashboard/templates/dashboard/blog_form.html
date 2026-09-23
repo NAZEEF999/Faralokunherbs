@@ -1,0 +1,26 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if is_edit %}Edit{% else %}Write{% endif %} Post{% endblock %}
+{% block page_title %}{% if is_edit %}Edit{% else %}Write{% endif %} Blog Post{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:blog' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to blog</a>
+<form method="post" enctype="multipart/form-data" class="card" style="max-width:42rem;">
+  {% csrf_token %}
+  <div class="form-group"><label class="form-label">Title</label>{{ form.title }}
+    {% if form.title.errors %}<p style="color:var(--danger);font-size:.78rem;">{{ form.title.errors.0 }}</p>{% endif %}</div>
+  <div class="form-group"><label class="form-label">Excerpt (short summary)</label>{{ form.excerpt }}</div>
+  <div class="form-group"><label class="form-label">Content</label>{{ form.content }}</div>
+  <div class="form-group">
+    <label class="form-label">Cover Image</label>
+    {% if form.instance.image %}<img src="{{ form.instance.image.url }}" style="height:5rem;border-radius:.5rem;margin-bottom:.5rem;display:block;">{% endif %}
+    {{ form.image }}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Category</label>{{ form.category }}</div>
+    <div class="form-group"><label class="form-label">Author</label>{{ form.author }}</div>
+  </div>
+  <div class="form-group">
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_published }} Published (visible on the public site)</label>
+  </div>
+  <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Save Post{% endif %}</button>
+</form>
+{% endblock %}

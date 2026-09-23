@@ -1,0 +1,31 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Testimonials{% endblock %}
+{% block page_title %}Testimonials{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><span class="card-title">All Testimonials</span></div>
+  {% if testimonials %}
+  <table>
+    <thead><tr><th>Name</th><th>Condition</th><th>Rating</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for t in testimonials %}
+      <tr>
+        <td><strong>{{ t.name }}</strong><br><span style="color:var(--muted);font-size:.78rem;">{{ t.content|truncatechars:60 }}</span></td>
+        <td>{{ t.condition|default:"—" }}</td>
+        <td>{{ t.rating }}★</td>
+        <td>{% if t.is_approved %}<span class="badge approved">Approved</span>{% else %}<span class="badge pending">Pending</span>{% endif %}</td>
+        <td>
+          <form method="post" action="{% url 'dashboard:testimonial_toggle' t.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm">{% if t.is_approved %}Unapprove{% else %}Approve{% endif %}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No testimonials submitted yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

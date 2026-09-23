@@ -1,0 +1,29 @@
+# ── Secrets / environment ─────────────────────────────────────────────────────
+# .env holds real local secrets on this machine and is git-ignored so
+# nothing sensitive is ever committed. For deployment, copy the values into
+# Vercel env vars instead of committing a .env file.
+.env
+.env.local
+.env.*.local
+
+# ── Python / Django ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+*.sqlite3
+test_db.sqlite3
+staticfiles/
+media/
+db.sqlite3
+
+# ── Tooling / logs ────────────────────────────────────────────────────────────
+node_modules/
+.vercel/
+*.log
+server.log
+server-err.log
+.DS_Store
+Thumbs.db

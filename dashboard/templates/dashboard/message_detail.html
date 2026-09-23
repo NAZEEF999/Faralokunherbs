@@ -1,0 +1,23 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Message from {{ inquiry.name }}{% endblock %}
+{% block page_title %}Message Detail{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:messages' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to messages</a>
+
+<div class="card" style="max-width:40rem;">
+  <div class="card-header"><span class="card-title">{{ inquiry.name }}</span></div>
+  <table>
+    <tr><td style="color:var(--muted);width:30%;">Email</td><td>{{ inquiry.email|default:"—" }}</td></tr>
+    <tr><td style="color:var(--muted);">Phone</td><td>{{ inquiry.phone|default:"—" }}</td></tr>
+    <tr><td style="color:var(--muted);">Received</td><td>{{ inquiry.created_at|date:"M j, Y — g:i A" }}</td></tr>
+  </table>
+  <div style="margin-top:1rem;padding:1rem;background:var(--bg);border-radius:.7rem;font-size:.9rem;white-space:pre-wrap;">{{ inquiry.message }}</div>
+
+  {% if inquiry.phone %}
+  <a href="https://wa.me/{{ inquiry.phone }}" target="_blank" class="wa-btn" style="margin-top:1rem;display:inline-flex;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.07-1.32A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+    Reply on WhatsApp
+  </a>
+  {% endif %}
+</div>
+{% endblock %}

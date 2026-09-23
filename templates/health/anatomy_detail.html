@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{% url 'health:anatomy_list' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Anatomy</a>
+
+    <span class="badge-gold" style="margin-bottom:1rem;display:inline-block;">{{ topic.get_system_display }}</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:1.5rem;">{{ topic.name }}</h1>
+
+    <img src="{% if topic.image %}{{ topic.image.url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" alt="{{ topic.name }}" style="width:100%;max-height:22rem;object-fit:cover;border-radius:1.5rem;background:#faf1de;margin-bottom:2rem;"/>
+
+    <p class="muted-text" style="font-size:1rem;line-height:1.75;margin-bottom:2rem;">{{ topic.short_description }}</p>
+
+    {% if topic.function %}
+    <div style="margin-bottom:2rem;">
+      <h3 style="font-weight:700;color:#14291D;font-size:1.1rem;margin-bottom:.6rem;">Function</h3>
+      <p class="muted-text" style="font-size:.92rem;line-height:1.75;white-space:pre-line;">{{ topic.function }}</p>
+    </div>
+    {% endif %}
+
+    {% if topic.common_issue_list %}
+    <div style="margin-bottom:2rem;">
+      <h3 style="font-weight:700;color:#14291D;font-size:1.1rem;margin-bottom:.6rem;">Common Issues</h3>
+      <ul style="list-style:none;padding:0;margin:0;">
+        {% for issue in topic.common_issue_list %}
+        <li style="display:flex;gap:.5rem;font-size:.9rem;color:#3E4B41;margin-bottom:.5rem;"><span style="color:#B0683A;">&#8226;</span>{{ issue }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if topic.general_info %}
+    <div style="margin-bottom:2rem;">
+      <h3 style="font-weight:700;color:#14291D;font-size:1.1rem;margin-bottom:.6rem;">More Information</h3>
+      <p class="muted-text" style="font-size:.92rem;line-height:1.75;white-space:pre-line;">{{ topic.general_info }}</p>
+    </div>
+    {% endif %}
+
+    <p style="font-size:.72rem;color:#8fa298;margin-top:2rem;line-height:1.6;">Educational information only — not medical advice. Consult a qualified healthcare professional for diagnosis or treatment.</p>
+
+    {% if related_topics %}
+    <div style="margin-top:4rem;">
+      <h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.5rem;">More in {{ topic.get_system_display }}</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {% for rt in related_topics %}
+        <a href="{% url 'health:anatomy_detail' rt.slug %}" class="glass-card reveal" style="padding:1rem 1.25rem;text-decoration:none;display:block;">
+          <h4 style="font-weight:700;color:#14291D;font-size:.92rem;">{{ rt.name }}</h4>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

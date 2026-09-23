@@ -1,0 +1,27 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Blog{% endblock %}
+{% block page_title %}Blog Posts{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><span class="card-title">All Posts</span>
+    <a href="{% url 'dashboard:blog_add' %}" class="card-link">+ Write Post</a></div>
+  {% if posts %}
+  <table>
+    <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+      {% for p in posts %}
+      <tr>
+        <td><strong>{{ p.title }}</strong></td>
+        <td>{{ p.category|default:"—" }}</td>
+        <td>{% if p.is_published %}<span class="badge active">Published</span>{% else %}<span class="badge pending">Draft</span>{% endif %}</td>
+        <td>{{ p.created_at|date:"M j, Y" }}</td>
+        <td><a href="{% url 'dashboard:blog_edit' p.pk %}" class="btn btn-sm">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No blog posts yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

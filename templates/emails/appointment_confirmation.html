@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: 'Georgia', serif; background: #f4f4f0; margin: 0; padding: 2rem; color: #2d2d2d; }
+    .wrapper { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #3A7D44, #2D5A27); padding: 2rem; text-align: center; }
+    .header h1 { color: #E8F0E9; font-size: 1.75rem; margin: 0 0 .25rem; }
+    .header p  { color: rgba(232,240,233,.7); margin: 0; font-size: .875rem; }
+    .body { padding: 2rem; }
+    .greeting { font-size: 1.125rem; color: #3A7D44; margin-bottom: 1rem; }
+    .detail-box { background: #f8fdf8; border: 1px solid #c8e6c9; border-radius: 8px; padding: 1.25rem; margin: 1.25rem 0; }
+    .detail-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #e8f5e9; font-size: .9rem; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #666; font-weight: 600; }
+    .detail-value { color: #2d2d2d; }
+    .cta { text-align: center; margin: 1.5rem 0; }
+    .cta a { background: linear-gradient(135deg,#3A7D44,#2D5A27); color: #fff; padding: .75rem 2rem; border-radius: 8px; text-decoration: none; font-size: .9rem; }
+    .quote { font-style: italic; color: #C49A3C; text-align: center; font-size: 1.1rem; margin: 1.25rem 0; }
+    .footer { background: #f8fdf8; padding: 1.25rem; text-align: center; font-size: .8rem; color: #888; border-top: 1px solid #e8f5e9; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>{{ site_name }}</h1>
+    {% if tagline %}<p>{{ tagline }}</p>{% endif %}
+  </div>
+  <div class="body">
+    <p class="greeting">Salaam {{ patient_name }},</p>
+    <p>Your appointment request has been received. We will confirm your session shortly.</p>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">{{ service_name }}</span></div>
+      {% if appointment_date %}<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">{{ appointment_date }}</span></div>{% endif %}
+      {% if preferred_time %}<div class="detail-row"><span class="detail-label">Time</span><span class="detail-value">{{ preferred_time }}</span></div>{% endif %}
+      <div class="detail-row"><span class="detail-label">Contact</span><span class="detail-value">{{ phone }}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value" style="color:#3A7D44;font-weight:600;">Pending Confirmation</span></div>
+    </div>
+    <p>Our team will call you at <strong>{{ phone }}</strong> within 24 hours to confirm.</p>
+    <p class="quote">"Healing hands, divine touch."</p>
+    <p style="color:#666;font-size:.875rem;">Questions? Call us: <a href="tel:{{ contact_phone }}" style="color:#3A7D44;">{{ contact_phone }}</a> or WhatsApp: {{ whatsapp_number }}</p>
+  </div>
+  <div class="footer">
+    {{ site_name }} &middot; {{ address }}<br/>
+    WE CURE, ALLAH HEALS.
+  </div>
+</div>
+</body>
+</html>

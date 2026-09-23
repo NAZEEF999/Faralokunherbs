@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+{% block content %}
+<section style="padding-top:6rem;padding-bottom:5rem;">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;">Appointment Calendar</h1>
+        <p style="color:#A0B5A3;font-size:.875rem;">{{ total_this_month }} appointment{{ total_this_month|pluralize }} in {{ month_name }} {{ year }}</p>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+        <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn-ghost" style="padding:.5rem 1rem;font-size:.875rem;">&larr; Prev</a>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:#D4E8D6;">{{ month_name }} {{ year }}</span>
+        <a href="?year={{ next_year }}&month={{ next_month }}" class="btn-ghost" style="padding:.5rem 1rem;font-size:.875rem;">Next &rarr;</a>
+        <a href="{% url 'api:admin_calendar' %}" class="btn-primary" style="padding:.5rem 1rem;font-size:.875rem;">Today</a>
+      </div>
+    </div>
+
+    <!-- Calendar grid -->
+    <div class="glass-card" style="padding:1.25rem;border-radius:1.5rem;overflow:hidden;">
+
+      <!-- Day name headers -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+        {% for day in day_names %}
+        <div style="text-align:center;padding:.625rem;font-size:.75rem;color:#A0B5A3;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">{{ day }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Weeks -->
+      {% for week in cal %}
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;">
+        {% for day in week %}
+
+        {% if day == 0 %}
+        <!-- Empty cell -->
+        <div style="min-height:5rem;border-radius:.625rem;padding:.5rem;opacity:.15;background:rgba(20,40,25,.2);"></div>
+
+        {% elif day == today.day and year == today.year and month == today.month %}
+        <!-- Today -->
+        <div style="min-height:5rem;border-radius:.625rem;padding:.5rem;background:rgba(58,125,68,.12);border:1px solid rgba(58,125,68,.3);">
+          <div style="font-size:.8125rem;color:#3A7D44;font-weight:700;margin-bottom:.35rem;">{{ day }}</div>
+          {% with day_appts=cal_data|get_item:day %}
+          {% if day_appts %}
+            {% for appt in day_appts %}
+            {% if appt.status == 'confirmed' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(58,125,68,.2);color:#4CAF50;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% elif appt.status == 'cancelled' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(160,69,58,.15);color:#f87171;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% elif appt.status == 'completed' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(196,154,60,.15);color:#C49A3C;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% else %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(160,181,163,.1);color:#A0B5A3;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% endwith %}
+        </div>
+
+        {% else %}
+        <!-- Regular day -->
+        <div style="min-height:5rem;border-radius:.625rem;padding:.5rem;background:rgba(20,40,25,.3);border:1px solid rgba(58,125,68,.08);">
+          <div style="font-size:.8125rem;color:#A0B5A3;margin-bottom:.35rem;">{{ day }}</div>
+          {% with day_appts=cal_data|get_item:day %}
+          {% if day_appts %}
+            {% for appt in day_appts %}
+            {% if appt.status == 'confirmed' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(58,125,68,.2);color:#4CAF50;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% elif appt.status == 'cancelled' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(160,69,58,.15);color:#f87171;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% elif appt.status == 'completed' %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(196,154,60,.15);color:#C49A3C;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% else %}
+            <div style="font-size:.6875rem;padding:.2rem .4rem;border-radius:.3rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(160,181,163,.1);color:#A0B5A3;" title="{{ appt.contact_name }} — {{ appt.service_name|default:'General' }}">
+              {{ appt.preferred_time|default:"" }} {{ appt.contact_name|truncatechars:12 }}
+            </div>
+            {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% endwith %}
+        </div>
+        {% endif %}
+
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:1.5rem;margin-top:1.25rem;flex-wrap:wrap;">
+      {% for label, color in legend %}
+      <div style="display:flex;align-items:center;gap:.4rem;">
+        <div style="width:.75rem;height:.75rem;border-radius:.2rem;background:{{ color }};"></div>
+        <span style="color:#A0B5A3;font-size:.8125rem;">{{ label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Links -->
+    <div style="display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;">
+      <a href="{% url 'api:wa_templates' %}" class="btn-ghost" style="font-size:.875rem;">WhatsApp Templates</a>
+      <a href="/admin/api/appointment/" class="btn-ghost" style="font-size:.875rem;">Manage in Admin &rarr;</a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

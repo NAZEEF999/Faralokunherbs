@@ -1,0 +1,245 @@
+{% extends "unfold/layouts/base_simple.html" %}
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<style>
+  @media (max-width: 640px){
+    [style*="grid-template-columns:1fr 1fr"]{ grid-template-columns:1fr !important; }
+  }
+</style>
+<div style="padding: 1.5rem 0;">
+
+  <!-- Welcome banner -->
+  <div style="background:linear-gradient(135deg,#052e16,#14532d,#15803d);border-radius:20px;padding:2rem 2.5rem;margin-bottom:2rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+    <div style="position:absolute;right:80px;bottom:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.03);"></div>
+    <div style="position:relative;z-index:1;">
+      <h1 style="color:white;font-size:1.75rem;font-weight:800;margin:0 0 .35rem;">
+        Welcome back, {{ request.user.first_name|default:request.user.username }}
+      </h1>
+      <p style="color:rgba(255,255,255,.65);margin:0;font-size:.9375rem;">
+        {{ site.site_name }} &nbsp;&middot;&nbsp; {{ site.registration_no }} &nbsp;&middot;&nbsp; Lagos, Nigeria
+      </p>
+      <p style="color:rgba(255,255,255,.45);margin:.5rem 0 0;font-size:.875rem;font-style:italic;">
+        "{{ site.tagline }}"
+      </p>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;">
+
+    <a href="{% url 'admin:api_appointment_changelist' %}?status=pending" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#b45309,#d97706);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">calendar_month</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ pending_appointments }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">Pending Appointments</div>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:api_inquiry_changelist' %}?is_read__exact=0" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#0369a1,#0ea5e9);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">mail</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ unread_inquiries }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">Unread Inquiries</div>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:api_notification_changelist' %}?is_read__exact=0" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#5b21b6,#7c3aed);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">notifications</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ unread_notifications }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">New Notifications</div>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:api_service_changelist' %}" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#15803d,#22c55e);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">healing</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ total_services }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">Active Services</div>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:api_product_changelist' %}" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#15803d,#22c55e);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">eco</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ total_products }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">Active Products</div>
+      </div>
+    </a>
+
+    <a href="{% url 'admin:api_order_changelist' %}" style="text-decoration:none;">
+      <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:1.25rem;transition:all .25s;" onmouseover="this.style.borderColor='rgba(34,197,94,.5)';this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='rgba(34,197,94,.2)';this.style.transform='translateY(0)';">
+        <div style="width:2.75rem;height:2.75rem;border-radius:12px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;margin-bottom:.875rem;">
+          <span class="material-symbols-outlined" style="color:white;font-size:1.25rem;">shopping_bag</span>
+        </div>
+        <div style="font-size:2rem;font-weight:800;color:#22c55e;line-height:1;">{{ pending_orders }}</div>
+        <div style="font-size:.75rem;color:#6b7280;margin-top:.25rem;font-weight:500;">Pending Orders</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Quick actions + recent appointments -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
+
+    <!-- Quick actions -->
+    <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.15);border-radius:16px;padding:1.5rem;">
+      <h3 style="font-size:1rem;font-weight:700;margin:0 0 1.25rem;color:#f9fafb;display:flex;align-items:center;gap:.5rem;">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">bolt</span>
+        Quick Actions
+      </h3>
+      {% for label, url, icon in quick_actions %}
+      <a href="{{ url }}" style="display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;text-decoration:none;color:#d1d5db;font-size:.875rem;font-weight:500;transition:all .2s;margin-bottom:.4rem;" onmouseover="this.style.background='rgba(34,197,94,0.08)';this.style.color='#22c55e';" onmouseout="this.style.background='transparent';this.style.color='#d1d5db';">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">{{ icon }}</span>
+        {{ label }}
+      </a>
+      {% endfor %}
+      <a href="{% url 'admin:api_appointment_changelist' %}" style="display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;text-decoration:none;color:#d1d5db;font-size:.875rem;font-weight:500;transition:all .2s;margin-bottom:.4rem;" onmouseover="this.style.background='rgba(34,197,94,0.08)';this.style.color='#22c55e';" onmouseout="this.style.background='transparent';this.style.color='#d1d5db';">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">calendar_month</span> View All Appointments
+      </a>
+      <a href="/admin-tools/calendar/" style="display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;text-decoration:none;color:#d1d5db;font-size:.875rem;font-weight:500;transition:all .2s;margin-bottom:.4rem;" onmouseover="this.style.background='rgba(34,197,94,0.08)';this.style.color='#22c55e';" onmouseout="this.style.background='transparent';this.style.color='#d1d5db';">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">calendar_view_month</span> Appointment Calendar
+      </a>
+      <a href="/admin-tools/wa-templates/" style="display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;text-decoration:none;color:#d1d5db;font-size:.875rem;font-weight:500;transition:all .2s;margin-bottom:.4rem;" onmouseover="this.style.background='rgba(34,197,94,0.08)';this.style.color='#22c55e';" onmouseout="this.style.background='transparent';this.style.color='#d1d5db';">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">chat</span> WhatsApp Templates
+      </a>
+      <a href="/" target="_blank" style="display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;text-decoration:none;color:#d1d5db;font-size:.875rem;font-weight:500;transition:all .2s;" onmouseover="this.style.background='rgba(34,197,94,0.08)';this.style.color='#22c55e';" onmouseout="this.style.background='transparent';this.style.color='#d1d5db';">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">open_in_new</span> View Website
+      </a>
+    </div>
+
+    <!-- Recent appointments -->
+    <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.15);border-radius:16px;padding:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin:0;color:#f9fafb;display:flex;align-items:center;gap:.5rem;">
+          <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">schedule</span>
+          Recent Appointments
+        </h3>
+        <a href="{% url 'admin:api_appointment_changelist' %}" style="font-size:.75rem;color:#22c55e;text-decoration:none;">View all &rarr;</a>
+      </div>
+      {% for appt in recent_appointments %}
+      <a href="{% url 'admin:api_appointment_change' appt.pk %}" style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;border-radius:10px;text-decoration:none;margin-bottom:.4rem;transition:background .2s;" onmouseover="this.style.background='rgba(34,197,94,0.06)';" onmouseout="this.style.background='transparent';">
+        <div>
+          <p style="color:#f9fafb;font-size:.875rem;font-weight:600;margin:0;">{{ appt.contact_name }}</p>
+          <p style="color:#6b7280;font-size:.75rem;margin:.1rem 0 0;">{{ appt.service_name|default:"General" }} &middot; {{ appt.appointment_date|default:"TBC" }}</p>
+        </div>
+        {% if appt.status == 'confirmed' %}
+        <span style="background:rgba(34,197,94,.15);color:#22c55e;padding:.2rem .65rem;border-radius:9999px;font-size:.7rem;font-weight:700;">Confirmed</span>
+        {% elif appt.status == 'pending' %}
+        <span style="background:rgba(234,179,8,.15);color:#eab308;padding:.2rem .65rem;border-radius:9999px;font-size:.7rem;font-weight:700;">Pending</span>
+        {% elif appt.status == 'cancelled' %}
+        <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:.2rem .65rem;border-radius:9999px;font-size:.7rem;font-weight:700;">Cancelled</span>
+        {% else %}
+        <span style="background:rgba(107,114,128,.15);color:#9ca3af;padding:.2rem .65rem;border-radius:9999px;font-size:.7rem;font-weight:700;">{{ appt.status|title }}</span>
+        {% endif %}
+      </a>
+      {% empty %}
+      <div style="text-align:center;padding:2rem 0;color:#6b7280;font-size:.875rem;">
+        <span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:.5rem;opacity:.4;">calendar_month</span>
+        No appointments yet
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent inquiries -->
+  {% if recent_inquiries %}
+  <div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.15);border-radius:16px;padding:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <h3 style="font-size:1rem;font-weight:700;margin:0;color:#f9fafb;display:flex;align-items:center;gap:.5rem;">
+        <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">mail</span>
+        Recent Inquiries
+      </h3>
+      <a href="{% url 'admin:api_inquiry_changelist' %}" style="font-size:.75rem;color:#22c55e;text-decoration:none;">View all &rarr;</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;">
+      {% for inq in recent_inquiries %}
+      <a href="{% url 'admin:api_inquiry_change' inq.pk %}" style="display:block;padding:1rem;border-radius:10px;text-decoration:none;border:1px solid rgba(34,197,94,.1);transition:all .2s;" onmouseover="this.style.borderColor='rgba(34,197,94,.4)';this.style.background='rgba(34,197,94,0.04)';" onmouseout="this.style.borderColor='rgba(34,197,94,.1)';this.style.background='transparent';">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+          <p style="color:#f9fafb;font-size:.875rem;font-weight:600;margin:0;">{{ inq.name }}</p>
+          {% if not inq.is_read %}
+          <span style="background:#eab308;color:white;padding:.15rem .5rem;border-radius:9999px;font-size:.65rem;font-weight:700;">New</span>
+          {% endif %}
+        </div>
+        <p style="color:#6b7280;font-size:.8125rem;margin:0;line-height:1.5;">{{ inq.message|truncatechars:80 }}</p>
+        <p style="color:#4b5563;font-size:.75rem;margin:.5rem 0 0;">{{ inq.created_at|date:"N j, Y · g:i A" }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- Mini Calendar -->
+<div style="background:var(--color-base-900,#111827);border:1px solid rgba(34,197,94,.15);border-radius:16px;padding:1.5rem;margin-top:1.25rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+    <h3 style="font-size:1rem;font-weight:700;margin:0;color:#f9fafb;display:flex;align-items:center;gap:.5rem;">
+      <span class="material-symbols-outlined" style="font-size:1.125rem;color:#22c55e;">calendar_view_month</span>
+      This Month's Appointments
+    </h3>
+    <a href="/admin-tools/calendar/" style="font-size:.75rem;color:#22c55e;text-decoration:none;">Full Calendar &rarr;</a>
+  </div>
+
+  {% if recent_appointments %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;">
+    {% for appt in recent_appointments %}
+    <a href="{% url 'admin:api_appointment_change' appt.pk %}"
+       style="display:block;padding:1rem;border-radius:12px;text-decoration:none;border:1px solid;transition:all .2s;
+       {% if appt.status == 'pending' %}border-color:rgba(234,179,8,.3);background:rgba(234,179,8,.05);
+       {% elif appt.status == 'confirmed' %}border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05);
+       {% elif appt.status == 'cancelled' %}border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);
+       {% else %}border-color:rgba(107,114,128,.2);background:rgba(107,114,128,.03);{% endif %}"
+       onmouseover="this.style.transform='translateY(-2px)';"
+       onmouseout="this.style.transform='translateY(0)';">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.5rem;">
+        <p style="color:#f9fafb;font-size:.875rem;font-weight:700;margin:0;">{{ appt.contact_name }}</p>
+        {% if appt.status == 'pending' %}
+        <span style="background:#eab308;color:white;padding:.15rem .5rem;border-radius:9999px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-left:.5rem;">Pending</span>
+        {% elif appt.status == 'confirmed' %}
+        <span style="background:#22c55e;color:white;padding:.15rem .5rem;border-radius:9999px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-left:.5rem;">Confirmed</span>
+        {% elif appt.status == 'cancelled' %}
+        <span style="background:#ef4444;color:white;padding:.15rem .5rem;border-radius:9999px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-left:.5rem;">Cancelled</span>
+        {% else %}
+        <span style="background:#6b7280;color:white;padding:.15rem .5rem;border-radius:9999px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-left:.5rem;">{{ appt.status|title }}</span>
+        {% endif %}
+      </div>
+      <p style="color:#9ca3af;font-size:.8125rem;margin:0 0 .25rem;display:flex;align-items:center;gap:.3rem;">
+        <span class="material-symbols-outlined" style="font-size:.875rem;">healing</span>
+        {{ appt.service_name|default:"General Consultation" }}
+      </p>
+      <p style="color:#6b7280;font-size:.75rem;margin:0;display:flex;align-items:center;gap:.3rem;">
+        <span class="material-symbols-outlined" style="font-size:.875rem;">schedule</span>
+        {{ appt.appointment_date|default:"Date TBC" }}
+        {% if appt.preferred_time %}&nbsp;&middot;&nbsp;{{ appt.preferred_time }}{% endif %}
+      </p>
+      <p style="color:#6b7280;font-size:.75rem;margin:.3rem 0 0;display:flex;align-items:center;gap:.3rem;">
+        <span class="material-symbols-outlined" style="font-size:.875rem;">phone</span>
+        {{ appt.contact_phone }}
+      </p>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:2rem;color:#6b7280;">
+    <span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:.75rem;opacity:.3;">calendar_month</span>
+    No appointments this month
+  </div>
+  {% endif %}
+</div>
+
+</div>
+{% endblock %}

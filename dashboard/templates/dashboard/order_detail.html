@@ -1,0 +1,54 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block page_title %}Order {{ order.order_number }}{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:orders' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to orders</a>
+
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:1.25rem;align-items:start;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Items</span></div>
+    <table>
+      <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.product_name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>NGN {{ item.unit_price|floatformat:0 }}</td>
+          <td>NGN {{ item.line_total|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div style="display:flex;justify-content:flex-end;padding-top:1rem;font-weight:700;">
+      Total: NGN {{ order.total|floatformat:0 }}
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header"><span class="card-title">Customer</span></div>
+      <p><strong>{{ order.customer_name }}</strong></p>
+      <p style="color:var(--muted);font-size:.85rem;">{{ order.customer_phone }}</p>
+      {% if order.customer_email %}<p style="color:var(--muted);font-size:.85rem;">{{ order.customer_email }}</p>{% endif %}
+      {% if order.delivery_address %}<p style="color:var(--muted);font-size:.85rem;margin-top:.5rem;">{{ order.delivery_address }}</p>{% endif %}
+      {% if order.notes %}<p style="color:var(--muted);font-size:.85rem;margin-top:.5rem;"><em>{{ order.notes }}</em></p>{% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Status</span></div>
+      <p style="margin-bottom:.75rem;"><span class="badge {{ order.status }}">{{ order.get_status_display }}</span></p>
+      <form method="post" action="{% url 'dashboard:order_update_status' order.pk %}" style="display:flex;gap:.5rem;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'dashboard:order_detail' order.pk %}">
+        <select name="status" class="form-input">
+          {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

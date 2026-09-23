@@ -1,0 +1,25 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Promotion{% endblock %}
+{% block page_title %}{% if is_edit %}Edit{% else %}Add{% endif %} Promotion{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:promotions' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to promotions</a>
+<form method="post" class="card" style="max-width:34rem;">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div style="color:var(--danger);font-size:.82rem;margin-bottom:.75rem;">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="form-group"><label class="form-label">Product</label>{{ form.product }}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Discount Type</label>{{ form.discount_type }}</div>
+    <div class="form-group"><label class="form-label">Discount Value</label>{{ form.discount_value }}</div>
+  </div>
+  <p style="font-size:.75rem;color:var(--muted);margin:-.5rem 0 1rem;">Percentage: enter e.g. 20 for 20% off. Fixed amount: enter the NGN amount taken off the price.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Start Date</label>{{ form.start_date }}{% if form.start_date.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.start_date.errors.0 }}</p>{% endif %}</div>
+    <div class="form-group"><label class="form-label">End Date</label>{{ form.end_date }}{% if form.end_date.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.end_date.errors.0 }}</p>{% endif %}</div>
+  </div>
+  <div class="form-group" style="display:flex;gap:1.5rem;">
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_active }} Active (uncheck to pause)</label>
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_featured }} Featured</label>
+  </div>
+  <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Create Promotion{% endif %}</button>
+</form>
+{% endblock %}

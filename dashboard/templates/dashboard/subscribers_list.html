@@ -1,0 +1,24 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Subscribers{% endblock %}
+{% block page_title %}Subscribers{% endblock %}
+{% block content %}
+<div class="card">
+  {% if page_obj %}
+  <table>
+    <thead><tr><th>Email</th><th>Subscribed</th></tr></thead>
+    <tbody>
+      {% for s in page_obj %}
+      <tr><td>{{ s.email }}</td><td>{{ s.subscribed_at|date:"M j, Y" }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">&larr;</a>{% endif %}
+    <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&rarr;</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No subscribers yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

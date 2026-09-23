@@ -1,0 +1,48 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if is_edit %}Edit Staff Access{% else %}Add Staff Account{% endif %}{% endblock %}
+{% block page_title %}{% if is_edit %}Edit Staff Access{% else %}Add Staff Account{% endif %}{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:staff' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to staff</a>
+<form method="post" class="card" style="max-width:34rem;">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div style="color:var(--danger);font-size:.82rem;margin-bottom:.75rem;">{{ form.non_field_errors }}</div>{% endif %}
+
+  {% if is_edit %}
+  <div class="form-group">
+    <label class="form-label">Account</label>
+    <p style="font-size:.9rem;">{{ staff_access.user.get_full_name|default:staff_access.user.username }} &mdash; {{ staff_access.user.email }}</p>
+  </div>
+  {% else %}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Username</label>{{ form.username }}{% if form.username.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.username.errors.0 }}</p>{% endif %}</div>
+    <div class="form-group"><label class="form-label">Email</label>{{ form.email }}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">First Name</label>{{ form.first_name }}</div>
+    <div class="form-group"><label class="form-label">Last Name</label>{{ form.last_name }}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Password</label>{{ form.password1 }}{% if form.password1.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.password1.errors.0 }}</p>{% endif %}</div>
+    <div class="form-group"><label class="form-label">Confirm Password</label>{{ form.password2 }}{% if form.password2.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.password2.errors.0 }}</p>{% endif %}</div>
+  </div>
+  {% endif %}
+
+  {% if is_edit %}
+  <div class="form-group">
+    <label class="form-label">Reset Password (optional)</label>{{ form.new_password }}
+    {% if form.new_password.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ form.new_password.errors.0 }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="form-group"><label class="form-label">Role</label>{{ form.role }}</div>
+  <div class="form-group">
+    <label class="form-label">Sections (only used when Role is Custom)</label>
+    <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;">{{ form.sections }}</div>
+  </div>
+  {% if is_edit %}
+  <div class="form-group"><label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_active }} Active (dashboard access enabled)</label></div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Create Staff Account{% endif %}</button>
+</form>
+{% endblock %}

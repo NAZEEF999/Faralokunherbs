@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<section style="padding-top:6rem;padding-bottom:5rem;min-height:100vh;">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:#D4E8D6;">Welcome back, {{ profile.full_name }}</h1>
+        <p style="color:#A0B5A3;font-size:.875rem;">{{ request.user.email }}</p>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem;padding:.625rem 1.125rem;">
+          <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Booking
+        </a>
+        <a href="{% url 'accounts:edit_profile' %}" class="btn-ghost" style="font-size:.875rem;padding:.625rem 1.125rem;">Edit Profile</a>
+        <a href="{% url 'accounts:logout' %}" style="font-size:.875rem;padding:.625rem 1.125rem;color:#A0B5A3;text-decoration:none;border:1px solid rgba(160,181,163,.2);border-radius:.5rem;display:inline-flex;align-items:center;gap:.5rem;">
+          <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" style="margin-bottom:2rem;">
+      <div class="glass-card" style="padding:1.5rem;text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:#3A7D44;font-weight:700;">{{ total }}</div>
+        <div style="color:#A0B5A3;font-size:.8125rem;margin-top:.25rem;">Total Appointments</div>
+      </div>
+      <div class="glass-card" style="padding:1.5rem;text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:#C49A3C;font-weight:700;">{{ upcoming_count }}</div>
+        <div style="color:#A0B5A3;font-size:.8125rem;margin-top:.25rem;">Upcoming</div>
+      </div>
+      <div class="glass-card" style="padding:1.5rem;text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:#A0B5A3;font-weight:700;">{{ completed_count }}</div>
+        <div style="color:#A0B5A3;font-size:.8125rem;margin-top:.25rem;">Completed</div>
+      </div>
+    </div>
+
+    <!-- Upcoming appointments -->
+    <div class="glass-card" style="padding:1.75rem;margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.375rem;color:#D4E8D6;">Upcoming Appointments</h2>
+        <a href="{% url 'accounts:my_appointments' %}" style="color:#3A7D44;font-size:.8125rem;text-decoration:none;">View all &rarr;</a>
+      </div>
+      {% if upcoming %}
+        {% for appt in upcoming %}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem;border-radius:.75rem;background:rgba(58,125,68,.04);margin-bottom:.5rem;flex-wrap:wrap;gap:.75rem;">
+          <div>
+            <p style="color:#E8F0E9;font-size:.9375rem;font-weight:500;">{{ appt.service_name|default:"General Consultation" }}</p>
+            <p style="color:#A0B5A3;font-size:.8125rem;margin-top:.2rem;">
+              {% if appt.appointment_date %}{{ appt.appointment_date }}{% else %}Date TBC{% endif %}
+              {% if appt.preferred_time %}&nbsp;&middot;&nbsp;{{ appt.preferred_time }}{% endif %}
+            </p>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            {% if appt.status == 'confirmed' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(58,125,68,.15);color:#4CAF50;border:1px solid rgba(58,125,68,.3);">Confirmed</span>
+            {% elif appt.status == 'pending' %}
+              <span style="padding:.25rem .75rem;border-radius:9999px;font-size:.75rem;background:rgba(196,154,60,.1);color:#C49A3C;border:1px solid rgba(196,154,60,.3);">Pending</span>
+            {% endif %}
+            <a href="{% url 'accounts:receipt_pdf' appt.pk %}" style="color:#A0B5A3;font-size:.75rem;text-decoration:none;" title="Download Receipt">
+              <svg style="width:1.125rem;height:1.125rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:2.5rem 0;">
+          <svg style="width:3rem;height:3rem;color:rgba(58,125,68,.2);margin:0 auto .75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p style="color:#A0B5A3;font-size:.875rem;margin-bottom:1rem;">No upcoming appointments.</p>
+          <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem;padding:.625rem 1.25rem;">Book a Consultation</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Completed -->
+    {% if completed %}
+    <div class="glass-card" style="padding:1.75rem;">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.375rem;color:#D4E8D6;margin-bottom:1.25rem;">Past Sessions</h2>
+      {% for appt in completed %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;border-radius:.75rem;margin-bottom:.4rem;flex-wrap:wrap;gap:.5rem;">
+        <div>
+          <p style="color:#E8F0E9;font-size:.9rem;">{{ appt.service_name|default:"General Consultation" }}</p>
+          <p style="color:rgba(160,181,163,.6);font-size:.8rem;margin-top:.15rem;">{{ appt.appointment_date }}</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <span style="padding:.2rem .625rem;border-radius:9999px;font-size:.7rem;background:rgba(196,154,60,.1);color:#C49A3C;border:1px solid rgba(196,154,60,.2);">Completed</span>
+          <a href="{% url 'accounts:receipt_pdf' appt.pk %}" style="color:#A0B5A3;font-size:.75rem;text-decoration:none;" title="Download Receipt">
+            <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

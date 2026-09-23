@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{% if post.image %}{{ post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/blog-placeholder.jpg' %}{% endif %}{% endblock %}
+{% block content %}
+<article style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <a href="{% url 'api:blog' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Blog</a>
+    <img src="{% if post.image %}{{ post.image.url }}{% else %}{% static 'img/blog-placeholder.jpg' %}{% endif %}"
+         alt="{{ post.title }}" style="width:100%;height:20rem;object-fit:cover;border-radius:1.5rem;margin-bottom:2rem;background:#e9f4ea;"/>
+    {% if post.category %}<span class="badge-gold" style="margin-bottom:1rem;display:inline-block;">{{ post.category }}</span>{% endif %}
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3rem);color:#14291D;font-weight:700;margin-bottom:1rem;">{{ post.title }}</h1>
+    <div style="display:flex;align-items:center;gap:1rem;font-size:.875rem;color:#8fa298;margin-bottom:2rem;flex-wrap:wrap;">
+      <span>{{ post.author }}</span>
+      <span>&middot;</span>
+      {% if post.published_at %}<span>{{ post.published_at|date:"N j, Y" }}</span><span>&middot;</span>{% endif %}
+      <span>{{ post.reading_time }} min read</span>
+    </div>
+    <div class="divider" style="margin-bottom:2rem;"></div>
+    <div class="muted-text" style="line-height:1.9;font-size:1.0625rem;">{{ post.content|linebreaks }}</div>
+    <div class="divider" style="margin-top:3rem;"></div>
+  </div>
+
+  {% if related %}
+  <div class="max-w-3xl mx-auto px-4 sm:px-6" style="margin-top:3rem;">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:#14291D;font-weight:700;margin-bottom:1.5rem;">More from the Blog</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {% for p in related %}
+      <a href="{% url 'api:blog_detail' p.slug %}" class="glass-card" style="padding:1.25rem;text-decoration:none;display:block;">
+        {% if p.category %}<span class="badge-sage" style="margin-bottom:.5rem;display:inline-block;">{{ p.category }}</span>{% endif %}
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.125rem;color:#14291D;font-weight:700;margin-bottom:.5rem;">{{ p.title }}</h3>
+        <p class="muted-text" style="font-size:.8125rem;line-height:1.5;">{{ p.excerpt|truncatechars:80 }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</article>
+{% endblock %}

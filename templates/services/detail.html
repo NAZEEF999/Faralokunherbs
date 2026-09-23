@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block og_image %}{% if service.image %}{{ service.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/service-placeholder.jpg' %}{% endif %}{% endblock %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{% url 'api:services' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">
+      &larr; Back to Services
+    </a>
+    <div class="glass-card" style="padding:2.5rem;border-radius:1.5rem;">
+      <img src="{% if service.image %}{{ service.image.url }}{% else %}{% static 'img/service-placeholder.jpg' %}{% endif %}"
+           alt="{{ service.title }}" style="width:100%;height:20rem;object-fit:cover;border-radius:1rem;margin-bottom:2rem;background:#e9f4ea;"/>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <span class="badge-gold">{{ service.get_category_display }}</span>
+        <span class="badge-sage">{{ service.duration_minutes }} min</span>
+      </div>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3rem);color:#14291D;font-weight:700;margin-bottom:1.5rem;">{{ service.title }}</h1>
+      <div class="muted-text" style="line-height:1.8;font-size:1rem;">{{ service.description|linebreaks }}</div>
+
+      <div class="divider" style="margin:2rem 0;"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+        <a href="{% url 'api:book' %}?service={{ service.slug }}" class="btn-primary">
+          Book This Service &rarr;
+        </a>
+        {% if site.whatsapp_number %}
+        <a href="https://wa.me/{{ site.whatsapp_number }}?text=Salaam! I am interested in {{ service.title }}" target="_blank" class="btn-ghost">WhatsApp Us</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if related %}
+    <div style="margin-top:3rem;">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:#14291D;font-weight:700;margin-bottom:1.5rem;">Related Services</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {% for s in related %}
+        <a href="{% url 'api:service_detail' s.slug %}" class="glass-card" style="padding:1.25rem;text-decoration:none;display:block;">
+          <span class="badge-sage" style="margin-bottom:.75rem;display:block;align-self:flex-start;">{{ s.get_category_display }}</span>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.125rem;color:#14291D;font-weight:700;margin-bottom:.5rem;">{{ s.title }}</h3>
+          <p class="muted-text" style="font-size:.8125rem;line-height:1.5;">{{ s.short_description|truncatechars:80 }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

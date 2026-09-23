@@ -1,0 +1,48 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{{ patient.full_name }}{% endblock %}
+{% block page_title %}Patient Profile{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:patients' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to patients</a>
+
+<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:1.25rem;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">{{ patient.full_name }}</span></div>
+    <table>
+      <tr><td style="color:var(--muted);width:40%;">Email</td><td>{{ patient.user.email }}</td></tr>
+      <tr><td style="color:var(--muted);">Phone</td><td>{{ patient.phone|default:"—" }}</td></tr>
+      <tr><td style="color:var(--muted);">Date of Birth</td><td>{{ patient.date_of_birth|default:"—" }}</td></tr>
+      <tr><td style="color:var(--muted);">Address</td><td>{{ patient.address|default:"—" }}</td></tr>
+      <tr><td style="color:var(--muted);">Registered</td><td>{{ patient.created_at|date:"M j, Y" }}</td></tr>
+    </table>
+
+    {% if patient.medical_notes %}
+    <div style="margin-top:1.25rem;padding:1rem;background:var(--warn-bg);border-radius:.7rem;">
+      <div style="font-weight:700;font-size:.8rem;color:var(--warn);margin-bottom:.4rem;">
+        ⚠ Medical Notes — staff access only
+      </div>
+      <div style="font-size:.85rem;white-space:pre-wrap;">{{ patient.medical_notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Appointment History</span></div>
+    {% if appointments %}
+    <table>
+      <thead><tr><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr onclick="window.location='{% url 'dashboard:appointment_detail' a.pk %}'" style="cursor:pointer;">
+          <td>{{ a.service_name|default:"General" }}</td>
+          <td>{{ a.appointment_date|default:"TBC" }}</td>
+          <td><span class="badge {{ a.status }}">{{ a.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No appointments yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

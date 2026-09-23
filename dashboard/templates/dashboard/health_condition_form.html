@@ -1,0 +1,36 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Health Condition{% endblock %}
+{% block page_title %}{% if is_edit %}Edit{% else %}Add{% endif %} Health Condition{% endblock %}
+{% block content %}
+<a href="{% url 'dashboard:health_conditions' %}" style="font-size:.82rem;color:var(--muted);display:inline-block;margin-bottom:1rem;">&larr; Back to Conditions</a>
+<form method="post" enctype="multipart/form-data" class="card" style="max-width:40rem;">
+  {% csrf_token %}
+  <div class="form-group"><label class="form-label">Name</label>{{ form.name }}</div>
+  <div class="form-group">
+    <label class="form-label">Image</label>
+    {% if form.instance.image %}<img src="{{ form.instance.image.url }}" style="height:4rem;border-radius:.5rem;margin-bottom:.5rem;display:block;">{% endif %}
+    {{ form.image }}
+  </div>
+  <div class="form-group"><label class="form-label">Overview</label>{{ form.overview }}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Causes / Risk Factors (one per line)</label>{{ form.causes }}</div>
+    <div class="form-group"><label class="form-label">Symptoms (one per line)</label>{{ form.symptoms }}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="form-group"><label class="form-label">Prevention (one per line)</label>{{ form.prevention }}</div>
+    <div class="form-group"><label class="form-label">Lifestyle Tips (one per line)</label>{{ form.lifestyle_tips }}</div>
+  </div>
+  <div class="form-group"><label class="form-label">General Treatment Information</label>{{ form.treatment_info }}</div>
+  <div class="form-group"><label class="form-label">When to Seek Professional Care</label>{{ form.seek_care_info }}</div>
+  <div class="form-group">
+    <label class="form-label">Related Herbs</label>
+    <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;max-height:10rem;overflow-y:auto;">{{ form.related_herbs }}</div>
+  </div>
+  <div class="form-group"><label class="form-label">Sort Order</label>{{ form.sort_order }}</div>
+  <div class="form-group" style="display:flex;gap:1.5rem;">
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_featured }} Featured</label>
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_active }} Active</label>
+  </div>
+  <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Create Condition{% endif %}</button>
+</form>
+{% endblock %}

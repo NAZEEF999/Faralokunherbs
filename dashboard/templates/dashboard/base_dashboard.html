@@ -1,0 +1,352 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{% block title %}Dashboard{% endblock %} | {{ site.site_name|default:"Faralokun Vital Herbs" }} Admin</title>
+<link rel="manifest" href="{% url 'dashboard:pwa_manifest' %}">
+<meta name="theme-color" content="{{ site.primary_color|default:'#3A7D44' }}">
+<link rel="icon" type="image/png" href="{% static 'img/icon-192.png' %}">
+<link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="any">
+<link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sidebar-bg:#14291d; --sidebar-bg-2:#1b3526; --sidebar-active:#2f6b41;
+    --brand:#3A7D44; --brand-light:#e9f4ea;
+    --bg:#f4f7f5; --card:#ffffff; --border:#e6ece8;
+    --text:#1c2b22; --muted:#6b7d72; --muted-2:#8fa298;
+    --warn:#c98a2c; --warn-bg:#fdf3e3;
+    --danger:#c0453d; --danger-bg:#fbe9e7;
+    --blue:#2f6fb0; --blue-bg:#e8f1fb;
+    --purple:#7350a8; --purple-bg:#f0e9f8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+  a{text-decoration:none;color:inherit;}
+  .layout{display:flex;min-height:100vh;}
+
+  /* ── SIDEBAR ── */
+  .sidebar{width:250px;flex-shrink:0;background:var(--sidebar-bg);color:#cfe0d3;
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .brand{display:flex;align-items:center;gap:.6rem;padding:1.35rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.06);}
+  .brand-icon{width:2.1rem;height:2.1rem;border-radius:.6rem;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .brand-name{font-weight:800;font-size:1rem;color:#fff;line-height:1.15;}
+  .brand-sub{font-size:.7rem;color:#8fa298;}
+  .nav-group-label{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#5f7768;padding:1.1rem 1.25rem .4rem;}
+  .nav-link{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.25rem;font-size:.875rem;color:#c3d5c7;border-left:3px solid transparent;transition:.15s;}
+  .nav-link:hover{background:rgba(255,255,255,.05);color:#fff;}
+  .nav-link.active{background:var(--sidebar-active);color:#fff;border-left-color:#8fe3a3;font-weight:600;}
+  .nav-link svg{width:1.05rem;height:1.05rem;flex-shrink:0;}
+  .nav-badge{margin-left:auto;background:rgba(255,255,255,.14);color:#fff;font-size:.7rem;padding:.05rem .45rem;border-radius:9999px;}
+  .nav-link.active .nav-badge{background:rgba(255,255,255,.25);}
+  .sidebar-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:.6rem;}
+  .avatar{width:2.1rem;height:2.1rem;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;}
+  .sidebar-footer .name{font-size:.82rem;font-weight:600;color:#fff;}
+  .sidebar-footer .role{font-size:.7rem;color:#8fa298;}
+
+  /* ── MAIN ── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.9rem 1.75rem;
+    display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;}
+  .page-title{font-size:1.15rem;font-weight:700;flex-shrink:0;}
+  .search-box{flex:1;max-width:32rem;display:flex;align-items:center;gap:.5rem;background:var(--bg);
+    border:1px solid var(--border);border-radius:.6rem;padding:.5rem .9rem;color:var(--muted);}
+  .search-box input{border:none;background:transparent;outline:none;flex:1;font-size:.85rem;font-family:inherit;color:var(--text);}
+  .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:.6rem;}
+  .icon-btn{position:relative;width:2.3rem;height:2.3rem;border-radius:.6rem;display:flex;align-items:center;
+    justify-content:center;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
+  .icon-btn .dot{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:.62rem;
+    min-width:1.05rem;height:1.05rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;padding:0 .2rem;font-weight:700;}
+  .wa-btn{display:flex;align-items:center;gap:.4rem;background:#e9f9ee;color:#1e8e3e;border:1px solid #bfe8ca;
+    padding:.45rem .9rem;border-radius:.6rem;font-size:.8rem;font-weight:600;}
+  .profile-chip{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;border-radius:.6rem;}
+  .profile-chip .name{font-size:.83rem;font-weight:600;}
+  .profile-chip .role{font-size:.68rem;color:var(--muted);}
+
+  .content{padding:1.75rem;flex:1;}
+
+  /* ── TOASTS ── */
+  .toasts{position:fixed;top:1.25rem;right:1.25rem;z-index:100;display:flex;flex-direction:column;gap:.6rem;max-width:22rem;}
+  .toast{background:#fff;border-radius:.7rem;padding:.85rem 1rem;box-shadow:0 8px 24px rgba(0,0,0,.12);
+    border-left:4px solid var(--brand);font-size:.85rem;}
+  .toast.error{border-left-color:var(--danger);}
+  .toast.warning{border-left-color:var(--warn);}
+
+  /* ── SHARED UI ── */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-bottom:1.5rem;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.1rem 1.25rem;}
+  .stat-icon{width:2.4rem;height:2.4rem;border-radius:.65rem;display:flex;align-items:center;justify-content:center;margin-bottom:.7rem;}
+  .stat-label{font-size:.8rem;color:var(--muted);margin-bottom:.15rem;}
+  .stat-value{font-size:1.6rem;font-weight:800;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1.25rem;}
+  .card-header{display:flex;align-items:center;justify-content:between;margin-bottom:1rem;}
+  .card-title{font-weight:700;font-size:.95rem;}
+  .card-link{margin-left:auto;font-size:.8rem;color:var(--brand);font-weight:600;}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:.75rem;text-transform:uppercase;
+    letter-spacing:.03em;padding:.6rem .5rem;border-bottom:1px solid var(--border);}
+  td{padding:.75rem .5rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+
+  .badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:9999px;font-size:.72rem;font-weight:600;}
+  .badge.pending{background:var(--warn-bg);color:var(--warn);}
+  .badge.confirmed, .badge.completed, .badge.approved, .badge.active{background:var(--brand-light);color:var(--brand);}
+  .badge.cancelled{background:var(--danger-bg);color:var(--danger);}
+  .badge.contacted, .badge.processing{background:var(--blue-bg);color:var(--blue);}
+  .badge.ready{background:var(--purple-bg);color:var(--purple);}
+  .badge.unread{background:var(--danger-bg);color:var(--danger);}
+  .badge.read{background:#f1f3f2;color:var(--muted);}
+
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:.55rem;
+    font-size:.82rem;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;}
+  .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .btn-danger{background:var(--danger-bg);border-color:#f3c9c5;color:var(--danger);}
+  .btn-sm{padding:.35rem .7rem;font-size:.75rem;}
+
+  .form-input{width:100%;padding:.6rem .8rem;border:1px solid var(--border);border-radius:.55rem;
+    font-family:inherit;font-size:.85rem;background:#fff;color:var(--text);}
+  .form-label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.35rem;color:var(--text);}
+  .form-group{margin-bottom:1.1rem;}
+
+  .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);}
+
+  .pagination{display:flex;gap:.4rem;justify-content:center;margin-top:1.25rem;}
+  .pagination a, .pagination span{padding:.4rem .8rem;border-radius:.5rem;border:1px solid var(--border);font-size:.8rem;}
+  .pagination .current{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+  .sidebar-backdrop{display:none;}
+
+  /* ── PWA: push widget + offline banner ── */
+  .push-box{display:flex;align-items:center;gap:.35rem;}
+  .push-note{font-size:.72rem;color:var(--muted);border:1px dashed var(--border);border-radius:.55rem;padding:.3rem .6rem;}
+  .push-sound{display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;color:var(--muted);white-space:nowrap;}
+  .push-sound select{font-size:.75rem;font-family:inherit;border:1px solid var(--border);border-radius:.45rem;padding:.25rem .4rem;background:#fff;color:var(--text);}
+  #offline-banner{display:none;align-items:center;gap:.6rem;background:#333c37;color:#e9f4ea;font-size:.82rem;
+    padding:.5rem 1rem;position:sticky;top:0;z-index:9;}
+  #offline-banner .retry{margin-left:auto;color:#fff;font-weight:600;text-decoration:underline;cursor:pointer;border:none;background:none;font-family:inherit;}
+
+  @media (max-width: 900px){
+    .sidebar{position:fixed;left:-260px;z-index:50;transition:.2s;}
+    .sidebar.open{left:0;}
+    .search-box{display:none;}
+    #menuBtn{display:flex !important;}
+    .sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(13,25,18,.45);z-index:45;}
+    .push-note{display:none;}
+  }
+
+  @media (max-width: 560px){
+    .wa-btn-label{display:none;}
+    .wa-btn{padding:.5rem;}
+    .profile-chip .name, .profile-chip .role{display:none;}
+    .topbar-actions{gap:.4rem;}
+  }
+
+  /* ── RESPONSIVE FORM GRIDS ──
+     Every dashboard form uses inline 2/3-column grids (product/promotion/
+     staff/health-library forms etc.) -- rather than touching each of the
+     dozen+ templates individually, this catches them all by matching the
+     inline style text itself and collapsing to one column on phones. */
+  @media (max-width: 720px){
+    [style*="grid-template-columns:1fr 1fr"],
+    [style*="grid-template-columns:1.6fr 1fr"],
+    [style*="grid-template-columns:1fr 1.4fr"]{
+      grid-template-columns:1fr !important;
+    }
+  }
+
+  /* ── RESPONSIVE TABLES ──
+     Product/order/appointment/etc. lists have 5-7 columns -- on a phone
+     they scroll horizontally within their card rather than blowing out
+     the page or squashing illegibly. */
+  @media (max-width: 720px){
+    .card table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+    .content{padding:1.1rem;}
+    .topbar{padding:.75rem 1rem;}
+    .page-title{font-size:1rem;}
+  }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="layout">
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarBackdrop').classList.remove('open');"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2C8 6 5 10 5 14a7 7 0 0014 0c0-4-3-8-7-12z"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">{{ site.site_name|default:"Faralokun Vital Herbs" }}</div>
+        <div class="brand-sub">Staff Dashboard</div>
+      </div>
+    </div>
+
+    <a href="{% url 'dashboard:overview' %}" class="nav-link {% if active_nav == 'overview' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Dashboard
+    </a>
+
+    <div class="nav-group-label">Clinic</div>
+    {% if 'appointments' in my_dashboard_sections %}
+    <a href="{% url 'dashboard:appointments' %}" class="nav-link {% if active_nav == 'appointments' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Appointments
+    </a>
+    {% endif %}
+    {% if 'orders' in my_dashboard_sections %}
+    <a href="{% url 'dashboard:patients' %}" class="nav-link {% if active_nav == 'patients' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg> Patients
+    </a>
+    {% endif %}
+    {% if 'content' in my_dashboard_sections %}
+    <a href="{% url 'dashboard:services' %}" class="nav-link {% if active_nav == 'services' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg> Services
+    </a>
+    {% endif %}
+
+    {% if 'products' in my_dashboard_sections %}
+    <div class="nav-group-label">Business</div>
+    <a href="{% url 'dashboard:categories' %}" class="nav-link {% if active_nav == 'categories' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg> Categories
+    </a>
+    <a href="{% url 'dashboard:products' %}" class="nav-link {% if active_nav == 'products' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg> Products
+    </a>
+    <a href="{% url 'dashboard:promotions' %}" class="nav-link {% if active_nav == 'promotions' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.24L3 3v6.59a2 2 0 00.59 1.41l9.58 9.58a2 2 0 002.83 0l4.59-4.59a2 2 0 000-2.83z"/></svg> Promotions
+    </a>
+    {% endif %}
+    {% if 'orders' in my_dashboard_sections %}
+    <a href="{% url 'dashboard:orders' %}" class="nav-link {% if active_nav == 'orders' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2M3 7h18l-1.5 12a2 2 0 01-2 2H6.5a2 2 0 01-2-2z"/></svg> Orders
+    </a>
+    {% endif %}
+
+    {% if 'messages' in my_dashboard_sections %}
+    <div class="nav-group-label">Communication</div>
+    <a href="{% url 'dashboard:messages' %}" class="nav-link {% if active_nav == 'messages' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Messages / Inquiries
+      {% if unread_messages_count %}<span class="nav-badge">{{ unread_messages_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'dashboard:notifications' %}" class="nav-link {% if active_nav == 'notifications' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> Notifications
+      {% if unread_notifications_count %}<span class="nav-badge">{{ unread_notifications_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'dashboard:subscribers' %}" class="nav-link {% if active_nav == 'subscribers' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg> Subscribers
+    </a>
+    {% endif %}
+
+    {% if 'content' in my_dashboard_sections %}
+    <div class="nav-group-label">Content</div>
+    <a href="{% url 'dashboard:blog' %}" class="nav-link {% if active_nav == 'blog' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg> Blog
+    </a>
+    <a href="{% url 'dashboard:health_anatomy' %}" class="nav-link {% if active_nav == 'health_anatomy' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 013 3c0 1.5-1 2-1 3.5V10l4 4-1.5 1.5L14 13v4a3 3 0 01-2 2.83V22h-2v-2.17A3 3 0 018 17v-4l-2.5 2.5L4 14l4-4V8.5C7 7 6 6.5 6 5a3 3 0 016 0"/></svg> Anatomy
+    </a>
+    <a href="{% url 'dashboard:health_conditions' %}" class="nav-link {% if active_nav == 'health_conditions' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Health Conditions
+    </a>
+    <a href="{% url 'dashboard:health_herbs' %}" class="nav-link {% if active_nav == 'health_herbs' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 6 5 10 5 14a7 7 0 0014 0c0-4-3-8-7-12z"/></svg> Herbs &amp; Ingredients
+    </a>
+    <a href="{% url 'dashboard:testimonials' %}" class="nav-link {% if active_nav == 'testimonials' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg> Testimonials
+    </a>
+    {% endif %}
+
+    <div class="nav-group-label">System</div>
+    <a href="{% url 'dashboard:account_security' %}" class="nav-link {% if active_nav == 'account_security' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Account &amp; Security
+    </a>
+    {% if 'settings' in my_dashboard_sections %}
+    <a href="{% url 'dashboard:site_settings' %}" class="nav-link {% if active_nav == 'settings' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Site Settings
+    </a>
+    {% endif %}
+    {% if can_manage_staff %}
+    <a href="{% url 'dashboard:staff' %}" class="nav-link {% if active_nav == 'staff' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0112 0v2"/><path d="M19 8v6M22 11h-6"/></svg> Staff &amp; Access
+    </a>
+    {% endif %}
+    {% if request.user.is_superuser %}
+    <a href="/admin/" class="nav-link" title="Django admin — for developer/superuser technical management only">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg> Advanced (Django Admin)
+    </a>
+    {% endif %}
+
+    <div class="sidebar-footer">
+      <div class="avatar">{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</div>
+      <div>
+        <div class="name">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="role">{% if request.user.is_superuser %}Super Admin{% elif request.user.staff_access %}{{ request.user.staff_access.get_role_display }}{% else %}Staff{% endif %}</div>
+      </div>
+      <a href="{% url 'dashboard:logout' %}" style="margin-left:auto;color:#8fa298;" title="Log out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarBackdrop').classList.toggle('open');" class="icon-btn" style="display:none;" id="menuBtn">☰</button>
+      <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+      <form class="search-box" method="get" action="{% url 'dashboard:appointments' %}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" name="q" placeholder="Search appointments, patients...">
+      </form>
+      <div class="topbar-actions">
+        {% if site.whatsapp_number %}
+        <a href="https://wa.me/{{ site.whatsapp_number }}" target="_blank" class="wa-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.07-1.32A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          <span class="wa-btn-label">WhatsApp</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'dashboard:notifications' %}" class="icon-btn" title="Notifications">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          {% if unread_notifications_count %}<span class="dot">{{ unread_notifications_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'dashboard:messages' %}" class="icon-btn" title="Messages">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          {% if unread_messages_count %}<span class="dot">{{ unread_messages_count }}</span>{% endif %}
+        </a>
+        <div id="push-widget"></div>
+        <div class="profile-chip">
+          <div class="avatar" style="width:1.9rem;height:1.9rem;font-size:.7rem;">{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</div>
+          <div>
+            <div class="name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="role">{% if request.user.is_superuser %}Super Admin{% else %}Staff{% endif %}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+    <div class="toasts" id="toasts">
+      {% for message in messages %}
+      <div class="toast {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    <script>setTimeout(()=>{const t=document.getElementById('toasts'); if(t) t.style.display='none';}, 6000);</script>
+    {% endif %}
+
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<div id="offline-banner">
+  <span>&#9888;&#65039;</span>
+  <span>You are offline. Static resources still work; live data will load once you reconnect.</span>
+  <button class="retry" onclick="location.reload()">Retry now</button>
+</div>
+<script src="{% static 'js/dashboard-notify.js' %}"></script>
+</body>
+</html>

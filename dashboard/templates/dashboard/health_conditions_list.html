@@ -1,0 +1,27 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Health Conditions{% endblock %}
+{% block page_title %}Health Conditions{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header"><span class="card-title">All Conditions</span>
+    <a href="{% url 'dashboard:health_condition_add' %}" class="card-link">+ Add Condition</a></div>
+  {% if conditions %}
+  <table>
+    <thead><tr><th>Name</th><th>Featured</th><th>Sort Order</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for c in conditions %}
+      <tr>
+        <td><strong>{{ c.name }}</strong></td>
+        <td>{% if c.is_featured %}<span class="badge confirmed">Featured</span>{% else %}—{% endif %}</td>
+        <td>{{ c.sort_order }}</td>
+        <td>{% if c.is_active %}<span class="badge active">Active</span>{% else %}<span class="badge cancelled">Inactive</span>{% endif %}</td>
+        <td><a href="{% url 'dashboard:health_condition_edit' c.pk %}" class="btn btn-sm">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No health conditions yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

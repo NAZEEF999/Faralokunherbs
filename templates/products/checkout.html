@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{% url 'api:cart' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Cart</a>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:.5rem;">Finish Your Order</h1>
+    <p class="muted-text" style="font-size:.9rem;margin-bottom:2rem;">Choose how you'd like to place your order — we reply with pricing personally (no payment is taken online).</p>
+
+    <div class="glass-card" style="padding:1.75rem;margin-bottom:2rem;">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#14291D;font-weight:700;margin-bottom:1.25rem;">Order Summary</h3>
+      {% for item in cart.item_list %}
+      <div style="display:flex;justify-content:space-between;gap:.75rem;margin-bottom:.85rem;font-size:.85rem;">
+        <span class="muted-text">{{ item.quantity }}&times; {{ item.product.title }}</span>
+      </div>
+      {% endfor %}
+      <div class="divider" style="margin:1rem 0;"></div>
+      <p style="font-size:.8rem;color:#8fa298;line-height:1.6;">Pricing, availability and delivery are shared personally once you enquire or message us.</p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div style="padding:.875rem;margin-bottom:1rem;border-radius:.6rem;background:#fdecea;border:1px solid rgba(192,69,61,.25);">
+        <p style="color:#c0453d;font-size:.875rem;">{{ message }}</p>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <div class="glass-card" id="enquire" style="padding:1.75rem;border-top:4px solid #0F7C7C;">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+          <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:rgba(15,124,124,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:1.2rem;height:1.2rem;color:#0B5C5C;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+          </div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#14291D;font-weight:700;">Enquire</h3>
+        </div>
+        <p style="font-size:.82rem;color:#8fa298;margin-bottom:1.25rem;">Send us your details and we'll call you to confirm pricing and delivery.</p>
+        <form method="post" class="space-y-4" id="enquiry-form">
+          {% csrf_token %}
+          {% for field in form %}
+          <div>
+            <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% if field.errors %}<p style="color:#c0453d;font-size:.75rem;margin-top:.25rem;">{{ field.errors.0 }}</p>{% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Send Enquiry &rarr;</button>
+          <p style="font-size:.75rem;color:#8fa298;text-align:center;">No payment online. Our team will contact you to confirm pricing and delivery.</p>
+        </form>
+      </div>
+
+      <div class="glass-card" style="padding:1.75rem;border-top:4px solid #25D366;display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+          <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:rgba(37,211,102,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg style="width:1.2rem;height:1.2rem;color:#128C7E;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#14291D;font-weight:700;">WhatsApp</h3>
+        </div>
+        <p style="font-size:.82rem;color:#8fa298;margin-bottom:1.25rem;">Skip the form — your cart is pre-filled. Press the button and your order opens in WhatsApp, ready to send.</p>
+        <div style="background:#f4f7f5;border:1px solid #E6ECE8;border-radius:.75rem;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+          <p style="font-size:.72rem;color:#8fa298;font-weight:600;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Your cart, ready to send:</p>
+          {% for item in cart.item_list %}
+          <div style="font-size:.85rem;color:#3E4B41;margin-bottom:.35rem;">{{ item.quantity }}&times; {{ item.product.title }}</div>
+          {% endfor %}
+        </div>
+        {% if cart_wa_url %}
+        <a href="{{ cart_wa_url }}" target="_blank" rel="noopener noreferrer" class="btn-gold" style="margin-top:auto;justify-content:center;background:linear-gradient(135deg,#2BD976,#128C7E);color:#FFFFFF;">
+          <svg style="width:1.1rem;height:1.1rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Send Order on WhatsApp
+        </a>
+        {% else %}
+        <p style="font-size:.8rem;color:#c0453d;">WhatsApp isn't set up yet — please use the Enquire option.</p>
+        {% endif %}
+        <p style="font-size:.72rem;color:#8fa298;margin-top:.75rem;text-align:center;">Message includes product names &amp; quantities only — no prices.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

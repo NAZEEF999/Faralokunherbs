@@ -1,0 +1,74 @@
+/* ── Faralokun Vital Herbs admin styles ── */
+
+/* Sidebar brand area */
+#header {
+  background: linear-gradient(135deg, #052e16, #14532d) !important;
+}
+
+/* Active nav item */
+.nav-item.active,
+[data-checked] {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-left: 3px solid #22c55e !important;
+}
+
+/* Cards on dashboard */
+.unfold-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(34, 197, 94, 0.15) !important;
+  transition: all 0.25s ease !important;
+}
+
+.unfold-card:hover {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Table rows */
+tbody tr:hover {
+  background: rgba(34, 197, 94, 0.05) !important;
+}
+
+/* Buttons */
+.button-primary, [data-button="primary"] {
+  background: linear-gradient(135deg, #15803d, #22c55e) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+}
+
+.button-primary:hover {
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Form inputs */
+input:focus, textarea:focus, select:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+}
+
+/* Badge pills */
+.badge {
+  border-radius: 9999px !important;
+  font-weight: 700 !important;
+  font-size: 0.7rem !important;
+}
+
+/* Make any sidebar group with unread badges stand out */
+#nav-sidebar-apps > div:has(.sidebar-badge) > h2 {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-radius: 12px;
+}
+
+/* Make the group chevron red too */
+#nav-sidebar-apps > div:has(.sidebar-badge) > h2 .material-symbols-outlined {
+  color: #ef4444 !important;
+}
+
+/* Extra emphasis for unread count pills */
+.sidebar-badge {
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+}

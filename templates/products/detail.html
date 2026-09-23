@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% load static %}
+{% block og_image %}{% if product.image_url %}{% if product.image_url|slice:":1" == '/' %}{{ request.scheme }}://{{ request.get_host }}{{ product.image_url }}{% else %}{{ product.image_url }}{% endif %}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/product-placeholder.jpg' %}{% endif %}{% endblock %}
+{% block content %}
+<section style="padding-top:8rem;padding-bottom:5rem;">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{% url 'api:products' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Products</a>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div>
+        <div class="editorial-gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+          <button type="button" onclick="openLightbox(0)" style="grid-column:1;grid-row:1;display:block;width:100%;padding:0;border:none;background:none;cursor:zoom-in;">
+            <img id="main-gallery-image"
+                 src="{{ gallery.0.url }}"
+                 alt="{{ gallery.0.alt }}"
+                 style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:1.5rem;background:#faf1de;"/>
+          </button>
+          {% for gi in gallery|slice:"1:5" %}
+          <button type="button" class="gallery-thumb{% if forloop.first and gallery|length == 2 %} gallery-thumb-tall{% endif %}"
+                  data-gidx="{{ forloop.counter }}"
+                  onclick="showGalleryImage({{ forloop.counter }})"
+                  aria-label="View image {{ forloop.counter|add:1 }} of {{ gallery|length }}">
+            <img src="{{ gi.url }}" alt="{{ gi.alt }}" loading="lazy"/>
+            {% if forloop.last and gallery|length > 5 %}
+            <span style="position:absolute;inset:0;background:rgba(20,41,29,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;letter-spacing:.03em;">+{{ gallery|length|add:"-4" }}</span>
+            {% endif %}
+          </button>
+          {% endfor %}
+        </div>
+        <p style="font-size:.75rem;color:#8fa298;margin-top:.6rem;"><svg style="width:.9em;height:.9em;display:inline-block;vertical-align:-.12em;margin-right:.3rem;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>Tap any image to zoom.</p>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+          {% if product.category %}<span class="badge-gold">{{ product.category.name }}</span>{% endif %}
+          {% if promotion %}<span class="badge-green" style="background:#B0683A;color:#fff;border-color:#B0683A;">Promo</span>{% endif %}
+          {% if not product.in_stock %}<span class="badge-sage" style="color:#c0453d;border-color:rgba(192,69,61,.3);">Out of Stock</span>{% endif %}
+        </div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:1rem;">{{ product.title }}</h1>
+
+        <p class="muted-text" style="line-height:1.7;margin-bottom:2rem;">{{ product.description }}</p>
+
+        {% if product.in_stock %}
+        <form method="post" action="{% url 'api:cart_add' product.slug %}" data-ajax-add class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          {% csrf_token %}
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <div>
+              <label for="add-qty" style="display:block;font-size:.72rem;color:#8fa298;font-weight:600;margin-bottom:.3rem;">QUANTITY</label>
+              <div style="display:flex;align-items:center;gap:.35rem;">
+                <button type="button" onclick="stepQty(-1)" aria-label="Decrease quantity" style="width:2.1rem;height:2.1rem;border-radius:.5rem;border:1px solid rgba(58,125,68,.3);background:#fff;color:#3A7D44;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&minus;</button>
+                <input id="add-qty" type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="form-input" style="width:4rem;padding:.5rem;text-align:center;"/>
+                <button type="button" onclick="stepQty(1)" aria-label="Increase quantity" style="width:2.1rem;height:2.1rem;border-radius:.5rem;border:1px solid rgba(58,125,68,.3);background:#fff;color:#3A7D44;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="min-height:2.8rem;">
+              <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Add to Cart
+            </button>
+          </div>
+          <span class="badge-green" style="font-size:.72rem;">Pricing shared on enquiry</span>
+        </form>
+        <script>
+          (function () {
+            var q = document.getElementById('add-qty');
+            if (!q) return;
+            q.addEventListener('change', function () { clampQty(); });
+            window.stepQty = function (d) {
+              q.value = Math.max(parseInt(q.min || 1), Math.min(parseInt(q.max || 99) || 99, (parseInt(q.value) || 1) + d));
+              clampQty();
+            };
+            function clampQty() {
+              var v = parseInt(q.value);
+              q.value = Math.max(parseInt(q.min || 1), Math.min(parseInt(q.max || 99) || 99, isNaN(v) ? 1 : v));
+            }
+          })();
+        </script>
+        {% else %}
+        <p style="color:#c0453d;font-size:.85rem;font-weight:600;margin-bottom:1.5rem;">This product is currently out of stock — enquire and we'll let you know when it's back.</p>
+        {% endif %}
+
+        <div class="glass-card" id="enquire" style="padding:1.5rem;margin-bottom:1.5rem;">
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#14291D;font-weight:700;margin-bottom:.35rem;">Contact for Enquiry</h3>
+          <p style="font-size:.8rem;color:#8fa298;margin-bottom:1.1rem;">Tell us what you need and we'll reply personally with pricing, availability and delivery. No payment is taken online.</p>
+          {% if messages %}
+            {% for message in messages %}
+            <div style="padding:.875rem;margin-bottom:1rem;border-radius:.6rem;background:#e9f4ea;border:1px solid rgba(58,125,68,.25);">
+              <p style="color:#2D5A27;font-size:.875rem;">{{ message }}</p>
+            </div>
+            {% endfor %}
+          {% endif %}
+          <form method="post" action="{% url 'api:product_enquiry' product.slug %}">
+            {% csrf_token %}
+            {{ enquiry_form.product_id }}
+            {{ enquiry_form.product_name }}
+            <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+              <div>
+                <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">Quantity *</label>
+                {{ enquiry_form.quantity }}
+                {% if enquiry_form.quantity.errors %}<p style="color:#c0453d;font-size:.75rem;margin-top:.25rem;">{{ enquiry_form.quantity.errors.0 }}</p>{% endif %}
+              </div>
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">Your Name *</label>
+                  {{ enquiry_form.name }}
+                  {% if enquiry_form.name.errors %}<p style="color:#c0453d;font-size:.75rem;margin-top:.25rem;">{{ enquiry_form.name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                  <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">Phone *</label>
+                  {{ enquiry_form.phone }}
+                  {% if enquiry_form.phone.errors %}<p style="color:#c0453d;font-size:.75rem;margin-top:.25rem;">{{ enquiry_form.phone.errors.0 }}</p>{% endif %}
+                </div>
+              </div>
+              <div>
+                <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">Email (optional)</label>
+                {{ enquiry_form.email }}
+              </div>
+              <div>
+                <label style="display:block;font-size:.875rem;color:#3E4B41;margin-bottom:.375rem;">Your Question *</label>
+                {{ enquiry_form.message }}
+                {% if enquiry_form.message.errors %}<p style="color:#c0453d;font-size:.75rem;margin-top:.25rem;">{{ enquiry_form.message.errors.0 }}</p>{% endif %}
+              </div>
+              <button type="submit" class="btn-primary" style="justify-content:center;">Send Enquiry <svg style="width:1em;height:1em;display:inline-block;vertical-align:-.12em;margin-left:.4rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97-1.316.194-2.65.36-3.996.496a1.153 1.153 0 00-.87.591 23.05 23.05 0 01-2.016 3.13c-.34.44-1.018.44-1.358 0a23.05 23.05 0 01-2.016-3.13 1.153 1.153 0 00-.87-.591c-1.345-.136-2.68-.302-3.996-.496-1.978-.292-3.348-2.024-3.348-3.97V6.74c0-1.946 1.37-3.678 3.348-3.97zM6.75 8.25a.75.75 0 01.75-.75h9a.75.75 0 010 1.5h-9a.75.75 0 01-.75-.75zm0 3a.75.75 0 00.75.75h6a.75.75 0 000-1.5h-6a.75.75 0 00-.75.75z"/></svg></button>
+            </div>
+          </form>
+        </div>
+
+        {% if product.benefit_list %}
+        <div style="margin-bottom:1.5rem;">
+          <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Benefits &amp; Uses</h3>
+          <ul style="list-style:none;padding:0;margin:0;">
+            {% for b in product.benefit_list %}
+            <li style="display:flex;gap:.5rem;font-size:.875rem;color:#3E4B41;margin-bottom:.4rem;"><span style="color:#3A7D44;">&#10003;</span>{{ b }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if product.ingredient_list %}
+        <div style="margin-bottom:1.5rem;">
+          <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">Ingredients</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+            {% for i in product.ingredient_list %}<span class="badge-sage">{{ i }}</span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if product.how_to_use %}
+        <div style="margin-bottom:1.5rem;">
+          <h3 style="font-weight:700;color:#14291D;font-size:1rem;margin-bottom:.6rem;">How to Use</h3>
+          <p class="muted-text" style="font-size:.875rem;line-height:1.7;white-space:pre-line;">{{ product.how_to_use }}</p>
+        </div>
+        {% endif %}
+
+        {% if product.precautions %}
+        <div class="glass-card" style="padding:1.25rem;border-color:rgba(176,104,58,.3);background:#FFF8ED;">
+          <h3 style="font-weight:700;color:#8a6420;font-size:.9rem;margin-bottom:.5rem;">Precautions</h3>
+          <p style="font-size:.8rem;line-height:1.6;color:#5b6b5e;white-space:pre-line;">{{ product.precautions }}</p>
+        </div>
+        {% endif %}
+
+        <p style="font-size:.72rem;color:#8fa298;margin-top:1.5rem;line-height:1.6;">
+          This information is educational and describes traditional/general use. It is not medical advice and
+          does not replace consultation with a qualified healthcare professional.
+        </p>
+      </div>
+    </div>
+
+    {% if related_products %}
+    <div style="margin-top:5rem;">
+      <h2 class="section-title" style="font-size:1.75rem;margin-bottom:2rem;">You May Also Like</h2>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 featured-grid">
+        {% for rp in related_products %}
+        <div class="glass-card reveal" style="overflow:hidden;display:flex;flex-direction:column;position:relative;">
+          <a href="{% url 'api:product_detail' rp.slug %}">
+            <img src="{% if rp.image_url %}{{ rp.image_url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" loading="lazy"
+                 alt="{{ rp.title }}" style="width:100%;height:9rem;object-fit:cover;background:#faf1de;"/>
+          </a>
+          <div style="padding:1rem;flex:1;display:flex;flex-direction:column;">
+            <h4 style="font-weight:700;color:#14291D;font-size:.9rem;margin-bottom:.4rem;">{{ rp.title }}</h4>
+            <span class="badge-gold" style="align-self:flex-start;margin-top:auto;font-size:.7rem;">Contact for Enquiry</span>
+            <div style="display:flex;gap:.5rem;margin-top:.7rem;">
+              {% if rp.in_stock %}
+              <form method="post" action="{% url 'api:cart_add' rp.slug %}" data-ajax-add style="flex:1;">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1"/>
+                <input type="hidden" name="next" value="{{ request.path }}"/>
+                <button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:.8rem;padding:.45rem .6rem;min-width:0;">
+                  <svg style="width:.9rem;height:.9rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Add</span>
+                </button>
+              </form>
+              {% endif %}
+              <a href="{% url 'api:product_detail' rp.slug %}#enquire" class="btn-ghost" style="flex:1;justify-content:center;font-size:.8rem;padding:.45rem .6rem;min-width:0;">Enquire</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .editorial-gallery > .gallery-thumb{grid-column:2;width:100%;aspect-ratio:1/1;padding:0;
+    border:2px solid transparent;background:none;border-radius:1rem;overflow:hidden;cursor:pointer;
+    position:relative;scroll-snap-align:start;}
+  .editorial-gallery > .gallery-thumb.gallery-thumb-tall{grid-row:1/span 2;aspect-ratio:auto;}
+  .editorial-gallery > .gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block;background:#faf1de;}
+  .gallery-thumb-active{border-color:#3A7D44;}
+  #lightbox{display:none;position:fixed;inset:0;background:rgba(10,18,13,.94);z-index:120;
+    align-items:center;justify-content:center;flex-direction:column;padding:1rem;}
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:92vw;max-height:78vh;object-fit:contain;border-radius:.5rem;}
+  .lb-btn{position:absolute;top:50%;transform:translateY(-50%);width:3rem;height:3rem;border-radius:50%;
+    background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);font-size:1.4rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .lb-close{position:absolute;top:1rem;right:1.25rem;background:none;border:none;color:#fff;
+    font-size:2.25rem;cursor:pointer;line-height:1;}
+  @media (max-width:560px){ .lb-btn{width:2.3rem;height:2.3rem;font-size:1.1rem;} }
+</style>
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Product image viewer">
+  <button class="lb-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+  <button class="lb-btn" style="left:.75rem;" onclick="stepLightbox(-1)" aria-label="Previous image">&#8249;</button>
+  <img id="lb-image" src="{{ gallery.0.url }}" alt="{{ product.title }}"/>
+  <button class="lb-btn" style="right:.75rem;" onclick="stepLightbox(1)" aria-label="Next image">&#8250;</button>
+  <p id="lb-count" style="color:#8fa298;font-size:.8rem;margin-top:.75rem;"></p>
+</div>
+
+<script>
+  var gallery = {{ gallery_json|safe }} || [];
+  (function () {
+    var current = 0;
+    window.showGalleryImage = function (i) {
+      current = i;
+      var main = document.getElementById('main-gallery-image');
+      if (main) main.src = gallery[i].url;
+      document.querySelectorAll('.gallery-thumb').forEach(function (t) {
+        t.style.borderColor = parseInt(t.dataset.gidx, 10) === i ? '#3A7D44' : 'transparent';
+      });
+      var lbImg = document.getElementById('lb-image');
+      if (lbImg && document.getElementById('lightbox').classList.contains('open')) lbImg.src = gallery[i].url;
+    };
+    window.openLightbox = function (i) {
+      showGalleryImage(i);
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      updateCount();
+    };
+    window.closeLightbox = function () {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    window.stepLightbox = function (d) {
+      current = (current + d + gallery.length) % gallery.length;
+      showGalleryImage(current);
+      updateCount();
+    };
+    function updateCount() {
+      var c = document.getElementById('lb-count');
+      if (c) c.textContent = (current + 1) + ' / ' + gallery.length;
+    }
+    document.addEventListener('keydown', function (e) {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') stepLightbox(-1);
+      if (e.key === 'ArrowRight') stepLightbox(1);
+    });
+    document.getElementById('lightbox').addEventListener('click', function (e) {
+      if (e.target === this) closeLightbox();
+    });
+    var touchX = null;
+    document.getElementById('lightbox').addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+    document.getElementById('lightbox').addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 40) stepLightbox(dx < 0 ? 1 : -1);
+      touchX = null;
+    }, { passive: true });
+  })();
+</script>
+{% endblock %}

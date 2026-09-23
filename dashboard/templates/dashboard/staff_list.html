@@ -1,0 +1,33 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Staff & Access{% endblock %}
+{% block page_title %}Staff & Access{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:1.25rem;">
+  <p style="font-size:.82rem;color:var(--muted);">
+    Dashboard access here is completely separate from Django Admin. Staff created below can never log
+    into <code>/admin/</code> — only a developer can grant that, outside this dashboard.
+  </p>
+</div>
+<div class="card">
+  <div class="card-header"><span class="card-title">All Staff</span>
+    <a href="{% url 'dashboard:staff_add' %}" class="card-link">+ Add Staff Account</a></div>
+  {% if staff_members %}
+  <table>
+    <thead><tr><th>User</th><th>Role</th><th>Sections</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for access in staff_members %}
+      <tr>
+        <td><strong>{{ access.user.get_full_name|default:access.user.username }}</strong><br><span style="color:var(--muted);font-size:.78rem;">{{ access.user.email }}</span></td>
+        <td>{{ access.get_role_display }}</td>
+        <td style="font-size:.78rem;color:var(--muted);">{{ access.sections|join:", "|default:"—" }}</td>
+        <td>{% if access.is_active %}<span class="badge active">Active</span>{% else %}<span class="badge cancelled">Revoked</span>{% endif %}</td>
+        <td><a href="{% url 'dashboard:staff_edit' access.pk %}" class="btn btn-sm">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No staff accounts yet — you're managing everything solo. Add one to share the load.</div>
+  {% endif %}
+</div>
+{% endblock %}

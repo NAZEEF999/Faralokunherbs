@@ -1,0 +1,77 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block title %}Account & Security{% endblock %}
+{% block page_title %}Account &amp; Security{% endblock %}
+{% block content %}
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Profile</span></div>
+  <p style="font-size:.9rem;"><strong>{{ request.user.get_full_name|default:request.user.username }}</strong></p>
+  <p style="font-size:.85rem;color:var(--muted);">{{ request.user.email }}</p>
+  <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem;">
+    Role: {% if request.user.is_superuser %}Super Admin{% elif request.user.staff_access %}{{ request.user.staff_access.get_role_display }}{% endif %}
+  </p>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Change Password</span></div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_password">
+    {% if password_form.non_field_errors %}<p style="color:var(--danger);font-size:.8rem;">{{ password_form.non_field_errors.0 }}</p>{% endif %}
+    <div class="form-group">
+      <label class="form-label">Current Password</label>{{ password_form.old_password }}
+      {% if password_form.old_password.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ password_form.old_password.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">New Password</label>{{ password_form.new_password1 }}
+      {% if password_form.new_password1.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ password_form.new_password1.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirm New Password</label>{{ password_form.new_password2 }}
+      {% if password_form.new_password2.errors %}<p style="color:var(--danger);font-size:.75rem;">{{ password_form.new_password2.errors.0 }}</p>{% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">Change Password</button>
+  </form>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Two-Factor Authentication</span></div>
+  {% if two_factor and two_factor.is_enabled %}
+    <p style="font-size:.85rem;margin-bottom:1rem;"><span class="badge active">Enabled</span> since {{ two_factor.confirmed_at|date:"M d, Y" }}</p>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+      <form method="post" action="{% url 'dashboard:two_factor_regenerate_codes' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn">Regenerate Recovery Codes</button>
+      </form>
+      <button type="button" class="btn btn-danger" onclick="document.getElementById('disable-2fa-form').style.display='flex';this.style.display='none';">Disable 2FA</button>
+    </div>
+    <form method="post" action="{% url 'dashboard:two_factor_disable' %}" id="disable-2fa-form" style="display:none;gap:.6rem;margin-top:.85rem;align-items:end;">
+      {% csrf_token %}
+      <div class="form-group" style="margin:0;flex:1;">
+        <label class="form-label">Confirm your password to disable</label>
+        <input type="password" name="password" class="form-input" required>
+      </div>
+      <button type="submit" class="btn btn-danger">Confirm Disable</button>
+    </form>
+  {% else %}
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
+      Not enabled. Add an extra layer of security with an authenticator app (Google Authenticator,
+      Microsoft Authenticator, Authy, or similar).
+    </p>
+    <a href="{% url 'dashboard:two_factor_setup' %}" class="btn btn-primary">Enable 2FA</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-header"><span class="card-title">Active Sessions</span></div>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
+    {% if other_session_count %}You're signed in on {{ other_session_count }} other device{{ other_session_count|pluralize }} besides this one.{% else %}This is your only active session.{% endif %}
+  </p>
+  {% if other_session_count %}
+  <form method="post" action="{% url 'dashboard:logout_other_sessions' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Log Out Other Sessions</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
