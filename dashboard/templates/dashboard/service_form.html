@@ -21,6 +21,11 @@
     {% if form.instance.image %}<img src="{{ form.instance.image.url }}" style="height:4rem;border-radius:.5rem;margin-bottom:.5rem;display:block;">{% endif %}
     {{ form.image }}
   </div>
+  <div class="form-group">
+    <label class="form-label">Local Image Path</label>
+    {{ form.local_image }}
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.25rem;">e.g. /static/img/health/AhcYq.jpg — leave blank to use the uploaded photo. No spaces in filenames.</p>
+  </div>
   <div class="form-group"><label class="form-label">Sort Order</label>{{ form.sort_order }}</div>
   <div class="form-group" style="display:flex;gap:1.5rem;">
     <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;">{{ form.is_featured }} Featured</label>

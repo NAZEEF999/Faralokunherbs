@@ -8,7 +8,7 @@
     <span class="badge-gold" style="margin-bottom:1rem;display:inline-block;">{{ topic.get_system_display }}</span>
     <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,4vw,2.5rem);color:#14291D;font-weight:700;margin-bottom:1.5rem;">{{ topic.name }}</h1>
 
-    <img src="{% if topic.image %}{{ topic.image.url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" alt="{{ topic.name }}" style="width:100%;max-height:22rem;object-fit:cover;border-radius:1.5rem;background:#faf1de;margin-bottom:2rem;"/>
+    <img src="{% if topic.image_url %}{{ topic.image_url }}{% else %}{% static 'img/product-placeholder.jpg' %}{% endif %}" alt="{{ topic.name }}" style="width:100%;max-height:22rem;object-fit:cover;border-radius:1.5rem;background:#faf1de;margin-bottom:2rem;"/>
 
     <p class="muted-text" style="font-size:1rem;line-height:1.75;margin-bottom:2rem;">{{ topic.short_description }}</p>
 

@@ -26,7 +26,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for service in services %}
       <div class="glass-card reveal" style="overflow:hidden;display:flex;flex-direction:column;">
-        <img src="{% if service.image %}{{ service.image.url }}{% else %}{% static 'img/service-placeholder.jpg' %}{% endif %}" loading="lazy"
+        <img src="{% if service.image_url %}{{ service.image_url }}{% else %}{% static 'img/service-placeholder.jpg' %}{% endif %}" loading="lazy"
              alt="{{ service.title }}" style="width:100%;height:11rem;object-fit:cover;background:#e9f4ea;"/>
         <div style="padding:1.5rem;display:flex;flex-direction:column;flex:1;">
           <span class="badge-gold" style="align-self:flex-start;margin-bottom:.6rem;">{{ service.get_category_display }}</span>

@@ -84,7 +84,7 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = ['title', 'short_description', 'description', 'icon_name', 'category',
-                  'duration_minutes', 'price', 'image', 'is_featured', 'active', 'sort_order']
+                  'duration_minutes', 'price', 'image', 'local_image', 'is_featured', 'active', 'sort_order']
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 2}),
             'description': forms.Textarea(attrs={'rows': 5}),
@@ -168,7 +168,7 @@ class PromotionForm(forms.ModelForm):
 class BlogPostForm(forms.ModelForm):
     class Meta:
         model = BlogPost
-        fields = ['title', 'excerpt', 'content', 'image', 'category', 'author', 'is_published']
+        fields = ['title', 'excerpt', 'content', 'image', 'local_image', 'category', 'author', 'is_published']
         widgets = {
             'excerpt': forms.Textarea(attrs={'rows': 2}),
             'content': forms.Textarea(attrs={'rows': 12}),
@@ -263,7 +263,7 @@ class StaffEditForm(forms.ModelForm):
 class AnatomyTopicForm(forms.ModelForm):
     class Meta:
         model = AnatomyTopic
-        fields = ['name', 'system', 'short_description', 'image', 'function',
+        fields = ['name', 'system', 'short_description', 'image', 'local_image', 'function',
                   'common_issues', 'general_info', 'sort_order', 'is_active']
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 2}),
@@ -283,7 +283,7 @@ class AnatomyTopicForm(forms.ModelForm):
 class HealthConditionForm(forms.ModelForm):
     class Meta:
         model = HealthCondition
-        fields = ['name', 'image', 'overview', 'causes', 'symptoms', 'prevention',
+        fields = ['name', 'image', 'local_image', 'overview', 'causes', 'symptoms', 'prevention',
                   'lifestyle_tips', 'treatment_info', 'seek_care_info', 'related_herbs',
                   'is_featured', 'is_active', 'sort_order']
         widgets = {
@@ -308,7 +308,7 @@ class HealthConditionForm(forms.ModelForm):
 class HerbForm(forms.ModelForm):
     class Meta:
         model = Herb
-        fields = ['common_name', 'scientific_name', 'image', 'description', 'traditional_uses',
+        fields = ['common_name', 'scientific_name', 'image', 'local_image', 'description', 'traditional_uses',
                   'compounds_info', 'preparation_info', 'safety_info', 'interactions_info',
                   'precautions', 'related_products', 'is_featured', 'is_active', 'sort_order']
         widgets = {

@@ -11,6 +11,11 @@
     {% if form.instance.image %}<img src="{{ form.instance.image.url }}" style="height:4rem;border-radius:.5rem;margin-bottom:.5rem;display:block;">{% endif %}
     {{ form.image }}
   </div>
+  <div class="form-group">
+    <label class="form-label">Local Image Path</label>
+    {{ form.local_image }}
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.25rem;">e.g. /static/img/health/AhcYq.jpg — leave blank to use the uploaded photo. No spaces in filenames.</p>
+  </div>
   <div class="form-group"><label class="form-label">Overview</label>{{ form.overview }}</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     <div class="form-group"><label class="form-label">Causes / Risk Factors (one per line)</label>{{ form.causes }}</div>

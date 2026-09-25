@@ -168,6 +168,8 @@ class Service(models.Model):
     short_description = models.CharField(max_length=300)
     description       = models.TextField()
     image             = CloudinaryField('image', folder='phara/services', blank=True, null=True)
+    local_image       = models.CharField(max_length=255, blank=True,
+                                         help_text='Absolute static path, e.g. /static/img/health/AhcYq.jpg. No spaces in filenames.')
     icon_name         = models.CharField(max_length=50, default='Leaf',
                                          help_text='Lucide icon name e.g. Leaf, Heart, Star')
     category          = models.CharField(max_length=30, choices=CATEGORY_CHOICES, default='other')
@@ -189,6 +191,17 @@ class Service(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+    def image_url(self):
+        """Local static path if set, else the Cloudinary URL, else ''."""
+        if self.local_image:
+            return self.local_image
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ''
 
 
 # ── PRODUCT CATEGORY ────────────────────────────────────────────────────────────
@@ -267,7 +280,16 @@ class Product(models.Model):
     def image_url(self):
         """Local static path if set, else the Cloudinary URL, else ''."""
         if self.local_image:
-            return self.local_image
+            # Vercel can't serve files whose names contain spaces/dashes, so the
+            # files were renamed. Normalize any legacy DB paths to the new names
+            # so image_url() never emits a URL that 404s on production.
+            legacy = {
+                '/static/img/prod/pile- plus.jpeg': '/static/img/prod/pileplus.jpeg',
+                '/static/img/prod/pile-plus.jpeg': '/static/img/prod/pileplus.jpeg',
+                '/static/img/prod/herbal mixture.jpeg': '/static/img/prod/herbalmixture.jpeg',
+                '/static/img/prod/herbal-mixture.jpeg': '/static/img/prod/herbalmixture.jpeg',
+            }
+            return legacy.get(self.local_image, self.local_image)
         try:
             if self.image:
                 return self.image.url
@@ -605,6 +627,8 @@ class BlogPost(models.Model):
     excerpt      = models.CharField(max_length=400)
     content      = models.TextField()
     image        = CloudinaryField('image', folder='phara/blog', blank=True, null=True)
+    local_image = models.CharField(max_length=255, blank=True,
+                                   help_text='Absolute static path, e.g. /static/img/health/qLDdj.jpg. No spaces in filenames.')
     category     = models.CharField(max_length=100, blank=True)
     author       = models.CharField(max_length=100, default='Faralokun Vital Herbs Team')
     is_published = models.BooleanField(default=False, db_index=True)
@@ -630,6 +654,17 @@ class BlogPost(models.Model):
     def reading_time(self):
         word_count = len(self.content.split())
         return max(1, round(word_count / 200))
+
+    def image_url(self):
+        """Local static path if set, else the Cloudinary URL, else ''."""
+        if self.local_image:
+            return self.local_image
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ''
 
 
 # ── INQUIRY ───────────────────────────────────────────────────────────────────

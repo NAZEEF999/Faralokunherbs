@@ -30,6 +30,8 @@ class AnatomyTopic(models.Model):
     name               = models.CharField(max_length=150)
     slug               = models.SlugField(unique=True, blank=True)
     image              = CloudinaryField('image', folder='phara/health/anatomy', blank=True, null=True)
+    local_image        = models.CharField(max_length=255, blank=True,
+                                          help_text='Absolute static path, e.g. /static/img/health/liver.jpg. No spaces in filenames.')
     short_description  = models.CharField(max_length=300)
     function           = models.TextField(blank=True, help_text='What this part does.')
     common_issues      = models.TextField(blank=True, help_text='Common problems/conditions, one per line.')
@@ -54,12 +56,25 @@ class AnatomyTopic(models.Model):
     def common_issue_list(self):
         return _lines(self.common_issues)
 
+    def image_url(self):
+        """Local static path if set, else the Cloudinary URL, else ''."""
+        if self.local_image:
+            return self.local_image
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ''
+
 
 # ── HEALTH CONDITIONS ────────────────────────────────────────────────────────
 class HealthCondition(models.Model):
     name             = models.CharField(max_length=150)
     slug             = models.SlugField(unique=True, blank=True)
     image            = CloudinaryField('image', folder='phara/health/conditions', blank=True, null=True)
+    local_image      = models.CharField(max_length=255, blank=True,
+                                        help_text='Absolute static path, e.g. /static/img/health/AhcYq.jpg. No spaces in filenames.')
     overview         = models.TextField()
     causes           = models.TextField(blank=True, help_text='Causes / risk factors, one per line.')
     symptoms         = models.TextField(blank=True, help_text='One per line.')
@@ -103,6 +118,17 @@ class HealthCondition(models.Model):
     def lifestyle_list(self):
         return _lines(self.lifestyle_tips)
 
+    def image_url(self):
+        """Local static path if set, else the Cloudinary URL, else ''."""
+        if self.local_image:
+            return self.local_image
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ''
+
 
 # ── HERBS & INGREDIENTS ──────────────────────────────────────────────────────
 class Herb(models.Model):
@@ -110,6 +136,8 @@ class Herb(models.Model):
     scientific_name      = models.CharField(max_length=150, blank=True)
     slug                 = models.SlugField(unique=True, blank=True)
     image                = CloudinaryField('image', folder='phara/health/herbs', blank=True, null=True)
+    local_image          = models.CharField(max_length=255, blank=True,
+                                            help_text='Absolute static path, e.g. /static/img/health/JFl7u.jpg. No spaces in filenames.')
     description          = models.TextField()
     traditional_uses     = models.TextField(blank=True, help_text='One per line.')
     compounds_info       = models.TextField(
@@ -139,3 +167,14 @@ class Herb(models.Model):
     @property
     def traditional_use_list(self):
         return _lines(self.traditional_uses)
+
+    def image_url(self):
+        """Local static path if set, else the Cloudinary URL, else ''."""
+        if self.local_image:
+            return self.local_image
+        try:
+            if self.image:
+                return self.image.url
+        except Exception:
+            pass
+        return ''

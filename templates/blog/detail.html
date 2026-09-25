@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% block og_type %}article{% endblock %}
-{% block og_image %}{% if post.image %}{{ post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/blog-placeholder.jpg' %}{% endif %}{% endblock %}
+{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/blog-placeholder.jpg' %}{% endif %}{% endblock %}
 {% block content %}
 <article style="padding-top:8rem;padding-bottom:5rem;">
   <div class="max-w-3xl mx-auto px-4 sm:px-6">
     <a href="{% url 'api:blog' %}" style="display:inline-flex;align-items:center;gap:.5rem;color:#5b6b5e;text-decoration:none;font-size:.875rem;margin-bottom:2rem;">&larr; Back to Blog</a>
-    <img src="{% if post.image %}{{ post.image.url }}{% else %}{% static 'img/blog-placeholder.jpg' %}{% endif %}"
+    <img src="{% if post.image_url %}{{ post.image_url }}{% else %}{% static 'img/blog-placeholder.jpg' %}{% endif %}"
          alt="{{ post.title }}" style="width:100%;height:20rem;object-fit:cover;border-radius:1.5rem;margin-bottom:2rem;background:#e9f4ea;"/>
     {% if post.category %}<span class="badge-gold" style="margin-bottom:1rem;display:inline-block;">{{ post.category }}</span>{% endif %}
     <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3rem);color:#14291D;font-weight:700;margin-bottom:1rem;">{{ post.title }}</h1>

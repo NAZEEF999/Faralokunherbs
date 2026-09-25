@@ -62,7 +62,7 @@ class ServiceAdmin(ModelAdmin):
 
     fieldsets = (
         ('Basic Info',        {'fields': ('title', 'slug', 'category', 'icon_name', 'sort_order')}),
-        ('Content',           {'fields': ('short_description', 'description', 'image')}),
+        ('Content',           {'fields': ('short_description', 'description', 'image', 'local_image')}),
         ('Pricing & Duration',{'fields': ('price', 'duration_minutes')}),
         ('Visibility',        {'fields': ('active', 'is_featured')}),
     )
@@ -455,7 +455,7 @@ class BlogPostAdmin(ModelAdmin):
     actions             = ['publish_posts', 'unpublish_posts']
 
     fieldsets = (
-        ('Content',    {'fields': ('title', 'slug', 'excerpt', 'content', 'image')}),
+        ('Content',    {'fields': ('title', 'slug', 'excerpt', 'content', 'image', 'local_image')}),
         ('Meta',       {'fields': ('author', 'category')}),
         ('Publishing', {'fields': ('is_published', 'published_at')}),
         ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
