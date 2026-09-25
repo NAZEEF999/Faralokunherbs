@@ -46,7 +46,7 @@ PRODUCTS = [
         'description': 'PHARA PILE PLUS is a 100% natural herbal powder that provides complete relief from piles (hemorrhoids). It shrinks piles naturally, relieves pain, swelling and itching, treats infections and prevents recurrence, detoxifies the body, helps burn fat and reduce pot belly, eases menstrual pain and disorders, stops running stomach, and supports man power, energy and stamina. Main ingredients include Senna Leaves, Neem Leaves, Aloe Vera, Ginger, Garlic, Turmeric and Cloves. Safe and effective for both men and women.',
         'ingredients': 'Senna Leaves\nNeem Leaves\nAloe Vera\nGinger\nGarlic\nTurmeric\nCloves',
         'benefits': 'Shrinks piles naturally\nRelieves pain, swelling and itching\nTreats infections and prevents recurrence\nDetoxifies the body and helps burn fat\nEases menstrual pain and running stomach\nSupports man power, energy and stamina',
-        'local_image': '/static/img/prod/pile- plus.jpeg',
+        'local_image': '/static/img/prod/pileplus.jpeg',
         'sort_order': 3,
     },
     {
@@ -57,7 +57,7 @@ PRODUCTS = [
         'description': 'PHARA FARALOKUN is a non-alcoholic herbal mixture specially formulated for natural relief from chronic piles, anus pulling, irritation and hemorrhoids. It helps shrink swollen veins, relieve pain and discomfort, boost the immune system, enhance man power and stamina, and ease menstrual cramps and pains. Powerful natural ingredients include Aloe Vera, Neem Leaf, Ginger, Garlic, Clove, Herbal Leaves, Honey, Turmeric and Aframomum. Suitable for both men and women. 100% natural, safe and effective.',
         'ingredients': 'Aloe Vera\nNeem Leaf\nGinger\nGarlic\nClove\nHerbal Leaves\nHoney\nTurmeric\nAframomum',
         'benefits': 'Relieves chronic piles and hemorrhoids\nShrinks swollen veins and irritation\nBoosts the immune system\nEnhances man power and stamina\nEases menstrual cramps and pains',
-        'local_image': '/static/img/prod/herbal mixture.jpeg',
+        'local_image': '/static/img/prod/herbalmixture.jpeg',
         'sort_order': 4,
     },
     {

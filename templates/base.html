@@ -144,6 +144,12 @@
     @media (min-width:1100px){
       .featured-product-card{flex-basis:23.5%;}
     }
+    /* Compact add-to-cart buttons: icon-only so the label never wraps ugly
+       inside narrow cards (reportedly 3-line "Add to Cart" on phones). */
+    .featured-product-card .btn-primary{flex-wrap:nowrap;}
+    @media (max-width:560px){
+      .btn-primary .cart-txt{display:none;}
+    }
     /* Brand lockup — name fits on small phones, grows on desktop */
     .brand-name{font-size:clamp(.95rem,2.1vw,1.3rem);}
     @media (max-width:360px){ .brand-name{max-width:44vw;} }
@@ -276,11 +282,14 @@
       </div>
 
       <div class="hidden lg:flex items-center gap-3">
+        <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem; padding:.5rem 1.25rem;">Book a Consultation</a>
+      </div>
+
+      <div class="flex items-center gap-3">
         <a href="{% url 'api:cart' %}" style="position:relative;display:flex;align-items:center;padding:.5rem;color:#3E4B41;text-decoration:none;" aria-label="Cart">
           <svg style="width:1.35rem;height:1.35rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-          {% if cart_count %}<span id="cart-count" style="position:absolute;top:0;right:0;background:#B0683A;color:#fff;font-size:.65rem;font-weight:700;width:1.1rem;height:1.1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">{{ cart_count }}</span>{% else %}<span id="cart-count" style="display:none;"></span>{% endif %}
+          {% if cart_count %}<span id="cart-count" style="position:absolute;top:0;right:0;background:#DC2626;box-shadow:0 0 0 2px #fff;color:#fff;font-size:.65rem;font-weight:700;min-width:1.1rem;height:1.1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 .25rem;" title="{{ cart_count }} item{{ cart_count|pluralize }} in cart">{{ cart_count }}</span>{% else %}<span id="cart-count" style="display:none;"></span>{% endif %}
         </a>
-        <a href="{% url 'api:book' %}" class="btn-primary" style="font-size:.875rem; padding:.5rem 1.25rem;">Book a Consultation</a>
       </div>
 
       <button id="mobile-toggle" class="lg:hidden p-2" style="color:#3E4B41;" aria-label="Toggle menu">
