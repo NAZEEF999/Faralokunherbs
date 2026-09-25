@@ -15,7 +15,6 @@ venv/
 env/
 *.sqlite3
 test_db.sqlite3
-staticfiles/
 media/
 db.sqlite3
 
